@@ -1,0 +1,3141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="neon_noir">
+  <title>Báo Cáo Assignment CNTT 4.0 — Thư Viện Số & AI Note App</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* 1. Neon Noir Palette & Hierarchy */
+      --background: #0a0a12;
+      --surface-container-low: #111118;
+      --surface-container: #141422;
+      --surface-container-high: #1e1e30;
+
+      /* Text */
+      --on-surface: #e8e0f0;
+      --on-surface-variant: #a098b0;
+
+      /* Lines */
+      --outline: #5a5068;
+      --outline-variant: #302840;
+
+      /* Neon Accents */
+      --primary: #ff2d78;
+      --on-primary: #1a0010;
+      --primary-container: #b3004e;
+      --on-primary-container: #ffe0ec;
+      --secondary: #00ffcc;
+      --tertiary: #ffe04a;
+      --error: #ff4444;
+      --on-error: #1a0000;
+
+      /* Data Series */
+      --data-1: #ff2d78;
+      --data-2: #00ffcc;
+      --data-3: #ffe04a;
+      --data-4: #b388ff;
+      --data-context: #6e6680;
+
+      /* Fonts */
+      --font-headline: 'Sora', 'Inter', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-label: 'JetBrains Mono', monospace;
+
+      /* Shape */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Style Effects & Glassmorphism */
+      --glow-text: 0 0 8px currentColor;
+      --glow-primary: 0 0 16px color-mix(in srgb, var(--primary) 40%, transparent);
+      --glow-secondary: 0 0 16px color-mix(in srgb, var(--secondary) 35%, transparent);
+      --neon-border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+      --neon-border-lit: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+      --neon-inset: inset 0 0 12px color-mix(in srgb, var(--primary) 10%, transparent);
+      --cyan-border: 1px solid color-mix(in srgb, var(--secondary) 32%, transparent);
+      --cyan-border-lit: 1px solid color-mix(in srgb, var(--secondary) 60%, transparent);
+      --cyan-inset: inset 0 0 12px color-mix(in srgb, var(--secondary) 10%, transparent);
+      --yellow-border: 1px solid color-mix(in srgb, var(--tertiary) 38%, transparent);
+      --hairline-border: 1px solid var(--outline-variant);
+      --glow-line: drop-shadow(0 0 4px currentColor);
+      --scanlines: repeating-linear-gradient(
+        to bottom,
+        transparent 0 3px,
+        color-mix(in srgb, var(--on-surface) 3%, transparent) 3px 4px
+      );
+      --glass-bg: color-mix(in srgb, var(--surface-container) 82%, transparent);
+      --glass-bg-high: color-mix(in srgb, var(--surface-container-high) 88%, transparent);
+      --overlay-backdrop: color-mix(in srgb, var(--background) 84%, transparent);
+      --primary-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+      --secondary-tint: color-mix(in srgb, var(--secondary) 12%, transparent);
+      --tertiary-tint: color-mix(in srgb, var(--tertiary) 12%, transparent);
+      --error-tint: color-mix(in srgb, var(--error) 14%, transparent);
+
+      /* 3. Shared Tokens */
+      --positive: #00ffcc;
+      --warning: #ffe04a;
+      --focus: #ff2d78;
+
+      /* Dashboard Type Scale */
+      --display-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.35rem);
+      --headline-size: clamp(1.25rem, 1.08rem + 0.55vw, 1.5rem);
+      --subhead-size: clamp(1.02rem, 0.96rem + 0.25vw, 1.15rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing Scale */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      background-image: var(--scanlines);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header { position: static !important; }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Page Container */
+    .page-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-lg);
+      padding: var(--space-lg);
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    .page-grid * { min-width: 0; }
+
+    /* Typography Helpers */
+    .kicker {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--secondary);
+      text-shadow: var(--glow-text);
+      margin: 0 0 var(--space-xs) 0;
+    }
+
+    h1 {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 800;
+      line-height: 1.16;
+      letter-spacing: -0.02em;
+      color: var(--on-surface);
+      margin: 0 0 var(--space-sm) 0;
+    }
+
+    h2 {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: var(--on-surface);
+      margin: 0;
+    }
+
+    h3 {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--on-surface);
+      margin: 0;
+    }
+
+    .muted {
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+
+    .mono-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+    }
+
+    .neon-value-pink {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: var(--glow-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .neon-value-cyan {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      color: var(--secondary);
+      text-shadow: var(--glow-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Glassmorphic Neon Panels */
+    .neon-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: var(--neon-border);
+      box-shadow: var(--neon-inset);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out);
+    }
+
+    .neon-panel.is-cyan {
+      border: var(--cyan-border);
+      box-shadow: var(--cyan-inset);
+    }
+
+    .neon-panel.is-subtle {
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      box-shadow: none;
+    }
+
+    /* Header Block */
+    .hero-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: start;
+      border-bottom: var(--hairline-border);
+      padding-bottom: var(--space-lg);
+    }
+
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: 0.04em;
+      border: var(--hairline-border);
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      white-space: nowrap;
+    }
+
+    .badge.is-pink {
+      border: var(--neon-border-lit);
+      color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .badge.is-cyan {
+      border: var(--cyan-border-lit);
+      color: var(--secondary);
+      background: var(--secondary-tint);
+    }
+
+    .badge.is-yellow {
+      border: var(--yellow-border);
+      color: var(--tertiary);
+      background: var(--tertiary-tint);
+    }
+
+    /* Progress & Export Box in Header */
+    .progress-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-sm);
+    }
+
+    .progress-track {
+      height: 10px;
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--secondary);
+      box-shadow: var(--glow-secondary);
+      transition: width var(--dur-long) var(--ease-out);
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-xs);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      background: var(--surface-container);
+      color: var(--on-surface);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out),
+                  color var(--dur-short) var(--ease-out);
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--surface-container-high);
+      border-color: var(--outline);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-neon {
+      background: var(--surface-container);
+      color: var(--primary);
+      border: var(--neon-border-lit);
+    }
+
+    .btn-neon:hover:not(:disabled) {
+      border-color: var(--primary);
+      box-shadow: var(--glow-primary);
+      text-shadow: var(--glow-text);
+    }
+
+    .btn-cyan {
+      background: var(--surface-container);
+      color: var(--secondary);
+      border: var(--cyan-border-lit);
+    }
+
+    .btn-cyan:hover:not(:disabled) {
+      border-color: var(--secondary);
+      box-shadow: var(--glow-secondary);
+      text-shadow: var(--glow-text);
+    }
+
+    .btn-sm {
+      min-height: 36px;
+      padding: var(--space-xs) var(--space-sm);
+    }
+
+    /* KPI Summary Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    .kpi-tile {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      padding: var(--space-md) var(--space-lg);
+    }
+
+    .kpi-number {
+      font-size: clamp(1.6rem, 1.25rem + 1vw, 2.1rem);
+      line-height: 1.1;
+    }
+
+    /* Primary View Switcher Bar */
+    .view-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded-lg);
+    }
+
+    .view-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .view-tab {
+      min-height: 44px;
+      padding: var(--space-xs) var(--space-md);
+      background: transparent;
+      color: var(--on-surface-variant);
+      border: 1px solid transparent;
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: color var(--dur-micro) var(--ease-out),
+                  border-color var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out);
+    }
+
+    .view-tab:hover {
+      color: var(--on-surface);
+      background: var(--surface-container);
+    }
+
+    .view-tab.is-active {
+      color: var(--primary);
+      background: var(--primary-tint);
+      border: var(--neon-border-lit);
+      box-shadow: var(--neon-inset);
+      text-shadow: var(--glow-text);
+    }
+
+    /* Section Header */
+    .section-block {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      padding-top: var(--space-sm);
+    }
+
+    .section-block[hidden] {
+      display: none;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+      border-bottom: var(--hairline-border);
+      padding-bottom: var(--space-sm);
+    }
+
+    /* Filter & Search Controls */
+    .control-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+      gap: var(--space-md);
+      align-items: end;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .field-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--on-surface-variant);
+    }
+
+    .cyber-input, .cyber-select, .cyber-textarea {
+      width: 100%;
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      border: var(--hairline-border);
+      border-bottom: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      font-size: var(--body-size);
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out);
+    }
+
+    .cyber-select {
+      padding-right: var(--space-xl);
+    }
+
+    .cyber-textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .cyber-input:focus, .cyber-select:focus, .cyber-textarea:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: var(--glow-secondary);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: center;
+    }
+
+    .filter-chip {
+      min-height: 40px;
+      padding: var(--space-xs) var(--space-md);
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      transition: border-color var(--dur-short) var(--ease-out),
+                  color var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out);
+    }
+
+    .filter-chip:hover {
+      color: var(--on-surface);
+      border-color: var(--outline);
+    }
+
+    .filter-chip.is-active {
+      color: var(--secondary);
+      background: var(--secondary-tint);
+      border: var(--cyan-border-lit);
+    }
+
+    .filter-chip.is-pink.is-active {
+      color: var(--primary);
+      background: var(--primary-tint);
+      border: var(--neon-border-lit);
+    }
+
+    /* Part 1: 8-Lesson Digital Library Grid */
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+
+    .lesson-card-wrap {
+      container-type: inline-size;
+    }
+
+    .lesson-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      position: relative;
+    }
+
+    .lesson-card:hover {
+      border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+    }
+
+    .lesson-card.is-cyan:hover {
+      border-color: color-mix(in srgb, var(--secondary) 55%, transparent);
+    }
+
+    .lesson-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-sm);
+    }
+
+    .core-summary-box {
+      background: var(--surface-container-low);
+      border-left: 2px solid var(--secondary);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      font-size: 0.9rem;
+      color: var(--on-surface);
+    }
+
+    .cat-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-xs);
+    }
+
+    .cat-btn {
+      min-height: 36px;
+      padding: var(--space-xs);
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: background-color var(--dur-micro) var(--ease-out),
+                  color var(--dur-micro) var(--ease-out),
+                  border-color var(--dur-micro) var(--ease-out);
+    }
+
+    .cat-btn.is-active {
+      background: var(--surface-container-high);
+      color: var(--secondary);
+      border-color: var(--secondary);
+    }
+
+    .cat-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    .resource-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .resource-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--surface-container);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      font-size: 0.875rem;
+    }
+
+    .svg-preview-box {
+      width: 100%;
+      background: var(--background);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      padding: var(--space-sm);
+      overflow: hidden;
+    }
+
+    .svg-preview-box svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .lesson-card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      padding-top: var(--space-xs);
+      border-top: var(--hairline-border);
+    }
+
+    /* Y3 Extra Libraries */
+    .y3-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    /* Part 2: 3-Column Wireframe / Prototype */
+    .wireframe-shell {
+      display: grid;
+      grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.55fr) minmax(260px, 1.1fr);
+      gap: var(--space-md);
+      align-items: start;
+    }
+
+    .wf-column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+    }
+
+    .wf-column.is-center {
+      background: var(--glass-bg);
+      border: var(--cyan-border);
+    }
+
+    .wf-column.is-copilot {
+      background: var(--glass-bg);
+      border: var(--neon-border);
+    }
+
+    .wf-col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-sm);
+      padding-bottom: var(--space-sm);
+      border-bottom: var(--hairline-border);
+    }
+
+    .wf-note-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+      gap: var(--space-sm);
+    }
+
+    .wf-note-card {
+      text-align: left;
+      background: var(--surface-container);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      transition: border-color var(--dur-micro) var(--ease-out),
+                  background-color var(--dur-micro) var(--ease-out),
+                  box-shadow var(--dur-micro) var(--ease-out);
+    }
+
+    .wf-note-card:hover {
+      background: var(--surface-container-high);
+      border-color: var(--secondary);
+    }
+
+    .wf-note-card.is-selected {
+      background: var(--surface-container-high);
+      border: var(--neon-border-lit);
+      box-shadow: var(--neon-inset);
+    }
+
+    .tag-btn-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .copilot-output {
+      background: var(--background);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      font-size: 0.875rem;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    /* Interactive Workflow Flowchart */
+    .workflow-strip {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+
+    .wf-step-card {
+      background: var(--surface-container);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      position: relative;
+      transition: border-color var(--dur-short) var(--ease-out),
+                  box-shadow var(--dur-short) var(--ease-out),
+                  background-color var(--dur-short) var(--ease-out);
+    }
+
+    .wf-step-card:hover {
+      border-color: var(--outline);
+      background: var(--surface-container-high);
+    }
+
+    .wf-step-card.is-active {
+      border: var(--cyan-border-lit);
+      background: var(--surface-container-high);
+      box-shadow: var(--glow-secondary);
+    }
+
+    .wf-step-detail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--cyan-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+    }
+
+    /* 10-Note Ledger Table */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: var(--hairline-border);
+      border-radius: var(--rounded-lg);
+      background: var(--surface-container-low);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface-variant);
+      background: var(--surface-container);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--hairline-border);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--hairline-border);
+      vertical-align: top;
+    }
+
+    tbody tr {
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    tbody tr:hover {
+      background: var(--surface-container);
+    }
+
+    tbody tr.is-active-row {
+      background: var(--surface-container-high);
+      box-shadow: inset 3px 0 0 var(--primary);
+    }
+
+    /* 4 Google AI Studio Feature Demos */
+    .ai-studio-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    .ai-mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-sm);
+    }
+
+    .ai-result-box {
+      background: var(--background);
+      border: var(--cyan-border);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+      background: var(--surface-container);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+    }
+
+    .todo-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--secondary);
+      cursor: pointer;
+    }
+
+    /* Charts & Grading Grid */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: var(--space-lg);
+    }
+
+    .chart-box {
+      position: relative;
+      min-height: 280px;
+      width: 100%;
+    }
+
+    .checklist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: var(--space-sm);
+    }
+
+    .check-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded);
+      cursor: pointer;
+    }
+
+    .check-card.is-done {
+      border-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+      background: var(--secondary-tint);
+    }
+
+    .check-card input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: var(--secondary);
+      cursor: pointer;
+    }
+
+    /* Modal Dialog */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: var(--overlay-backdrop);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-dialog {
+      width: min(820px, 100%);
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--surface-container);
+      border: var(--neon-border-lit);
+      box-shadow: var(--glow-primary);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-md);
+      border-bottom: var(--hairline-border);
+      padding-bottom: var(--space-md);
+    }
+
+    /* Toast Notification */
+    .toast-banner {
+      position: fixed;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      z-index: 60;
+      background: var(--surface-container-high);
+      color: var(--secondary);
+      border: var(--cyan-border-lit);
+      box-shadow: var(--glow-secondary);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+    }
+
+    .toast-banner[hidden] {
+      display: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+      padding: var(--space-xl);
+      text-align: center;
+      background: var(--surface-container-low);
+      border: var(--hairline-border);
+      border-radius: var(--rounded-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* Container Query on Lesson Cards */
+    @container (max-width: 340px) {
+      .cat-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+      .hero-header,
+      .wireframe-shell,
+      .ai-studio-grid,
+      .analytics-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .workflow-strip {
+        grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      }
+
+      .wf-step-detail {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid {
+        padding: var(--space-md);
+        gap: var(--space-md);
+      }
+      .control-bar,
+      .ai-mode-tabs {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .modal-dialog {
+        padding: var(--space-md);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-grid">
+
+    <!-- HEADER & ASSIGNMENT PROGRESS -->
+    <header class="hero-header">
+      <div>
+        <p class="kicker">FPT Polytechnic · Module CNTT 4.0 · Phụ lục 2</p>
+        <h1>Hồ Sơ Báo Cáo Assignment CNTT 4.0</h1>
+        <p class="muted" style="max-width: 65ch;">
+          Hệ thống nộp bài tích hợp hoàn chỉnh: <strong>Phần 1 — Thư viện số cá nhân (Google NotebookLM)</strong> bao phủ 8 bài học chuẩn và <strong>Phần 2 — Ứng dụng Quản lý Ghi chú Cá nhân (Google AI Studio)</strong> áp dụng liên tục 5 ngày.
+        </p>
+        <div class="meta-strip">
+          <span class="badge is-pink"><i data-lucide="award" style="width:14px;height:14px;"></i> Trọng số: 60% điểm môn</span>
+          <span class="badge is-cyan"><i data-lucide="user-check" style="width:14px;height:14px;"></i> Điều phối: Huỳnh Nhâm Tý</span>
+          <span class="badge is-yellow"><i data-lucide="archive" style="width:14px;height:14px;"></i> PK05104-HuynhNhamTy_CNTT4.0_Assignment.zip</span>
+        </div>
+      </div>
+
+      <div class="neon-panel is-cyan progress-card">
+        <div class="progress-row">
+          <span class="mono-label">Tiến độ hoàn thiện Assignment</span>
+          <span class="neon-value-cyan" id="assignment-progress-pct">100%</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" id="assignment-progress-bar-wrap">
+          <div class="progress-fill" id="assignment-progress-fill" style="width: 100%;"></div>
+        </div>
+        <p class="muted" style="font-size: 0.85rem;" id="assignment-progress-caption">
+          Đã hoàn tất 6/6 tiêu chí Y1–Y6 &amp; ôn tập 8/8 bài học.
+        </p>
+        <div class="header-actions">
+          <button type="button" class="btn btn-cyan btn-sm" onclick="exportSubmissionReport()">
+            <i data-lucide="download" style="width:14px;height:14px;"></i> Xuất báo cáo (.txt)
+          </button>
+          <button type="button" class="btn btn-neon btn-sm" onclick="openDefensePrepModal()">
+            <i data-lucide="shield-check" style="width:14px;height:14px;"></i> Kịch bản bảo vệ 40%
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- KPI SUMMARY STRIP -->
+    <section class="kpi-grid" aria-label="Chỉ số tổng quan Assignment">
+      <div class="neon-panel kpi-tile">
+        <span class="mono-label">Phần 1 · Thư viện số (Y1–Y3)</span>
+        <span class="kpi-number neon-value-pink" id="kpi-lessons-reviewed">8 / 8 Bài</span>
+        <span class="muted" style="font-size: 0.85rem;">32 hạng mục Files, Media, Link, Ghi chú + 3 môn mở rộng</span>
+      </div>
+      <div class="neon-panel is-cyan kpi-tile">
+        <span class="mono-label">Phần 2 · Nhật ký ghi chú (Y5)</span>
+        <span class="kpi-number neon-value-cyan" id="kpi-notes-count">10 Ghi chú</span>
+        <span class="muted" style="font-size: 0.85rem;">Áp dụng liên tục 5 ngày (18/11 – 22/11/2026)</span>
+      </div>
+      <div class="neon-panel kpi-tile">
+        <span class="mono-label">Google AI Studio (Y6)</span>
+        <span class="kpi-number neon-value-pink">4 / 4 Tính năng</span>
+        <span class="muted" style="font-size: 0.85rem;">Tóm tắt · Gán thẻ · Hỏi đáp RAG · Action Items</span>
+      </div>
+      <div class="neon-panel is-cyan kpi-tile">
+        <span class="mono-label">Cơ cấu đánh giá Assignment</span>
+        <span class="kpi-number neon-value-cyan">10 + 10 + 40%</span>
+        <span class="muted" style="font-size: 0.85rem;">GĐ1 (10%) · GĐ2 (10%) · Bảo vệ thực hành &amp; vấn đáp (40%)</span>
+      </div>
+    </section>
+
+    <!-- PRIMARY VIEW SWITCHER -->
+    <nav class="view-bar" aria-label="Chuyển đổi góc nhìn báo cáo">
+      <div class="view-tabs" role="tablist">
+        <button type="button" class="view-tab is-active" id="vtab-all" onclick="switchView('all')">
+          <i data-lucide="layout-grid" style="width:15px;height:15px;"></i> Toàn bộ báo cáo
+        </button>
+        <button type="button" class="view-tab" id="vtab-part1" onclick="switchView('part1')">
+          <i data-lucide="library" style="width:15px;height:15px;"></i> Phần 1: Thư viện số (8 bài)
+        </button>
+        <button type="button" class="view-tab" id="vtab-part2" onclick="switchView('part2')">
+          <i data-lucide="cpu" style="width:15px;height:15px;"></i> Phần 2: AI Note App Dashboard
+        </button>
+        <button type="button" class="view-tab" id="vtab-progress" onclick="switchView('progress')">
+          <i data-lucide="check-square" style="width:15px;height:15px;"></i> Tiến độ Y1–Y6 &amp; Điểm số
+        </button>
+      </div>
+      <span class="mono-label" id="active-view-indicator">Đang hiển thị: Toàn bộ 2 phần</span>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- PART 1: DIGITAL LIBRARY (8 LESSONS + Y3)                              -->
+    <!-- ===================================================================== -->
+    <section class="section-block" id="section-part1">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Phần 1 · Tự tạo "Trợ lý học tập" (10% Giai đoạn 1)</p>
+          <h2>Thư Viện Số Cá Nhân — 8 Bài Học CNTT 4.0 (Google NotebookLM)</h2>
+        </div>
+        <span class="badge is-cyan">Y1 + Y2 (4 Danh mục chuẩn) + Y3 (Mở rộng)</span>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="neon-panel is-subtle control-bar">
+        <div class="field-group">
+          <label class="field-label" for="library-search">Tìm kiếm nhanh trong 8 bài học</label>
+          <input type="search" id="library-search" class="cyber-input" placeholder="Nhập từ khóa: TPU, Docker, 5G, Vibe-code, ISO 27000..." oninput="filterLibrary()">
+        </div>
+        <div class="field-group">
+          <span class="field-label">Bộ lọc nhóm chủ đề &amp; Hiển thị nhanh danh mục</span>
+          <div class="chip-row">
+            <button type="button" class="filter-chip is-pink is-active" data-lgroup="all" onclick="setLessonGroup('all', this)">Tất cả (8)</button>
+            <button type="button" class="filter-chip is-pink" data-lgroup="core" onclick="setLessonGroup('core', this)">Nền tảng &amp; Phần cứng (1–2)</button>
+            <button type="button" class="filter-chip is-pink" data-lgroup="infra" onclick="setLessonGroup('infra', this)">HĐH, Cloud &amp; 5G/IoT (3–5)</button>
+            <button type="button" class="filter-chip is-pink" data-lgroup="future" onclick="setLessonGroup('future', this)">Thuật toán, AI &amp; Bảo mật (6–8)</button>
+            <select id="global-cat-select" class="cyber-select" aria-label="Chuyển nhanh danh mục trên mọi thẻ bài" onchange="setAllCardsCategory(this.value)" style="width:auto; min-height:40px;">
+              <option value="files">Xem đồng loạt: a) Tập tin</option>
+              <option value="media">Xem đồng loạt: b) Hình ảnh / Video</option>
+              <option value="refs">Xem đồng loạt: c) Link tham chiếu</option>
+              <option value="notes">Xem đồng loạt: d) Ghi chú cá nhân</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 Lesson Cards Grid -->
+      <div class="lesson-grid" id="lesson-grid"></div>
+
+      <!-- Y3 Extended Libraries -->
+      <div class="neon-panel is-cyan">
+        <div class="section-head" style="border-bottom: none; padding-bottom: 0;">
+          <div>
+            <p class="kicker">Yêu cầu mở rộng Y3</p>
+            <h3>Thư Viện Số Cho Các Môn Học Khác Tại FPT Polytechnic</h3>
+          </div>
+          <span class="badge is-yellow">3 Notebook mở rộng</span>
+        </div>
+        <div class="y3-grid" style="margin-top: var(--space-md);">
+          <div class="neon-panel is-subtle" style="padding: var(--space-md);">
+            <span class="badge is-cyan" style="margin-bottom: var(--space-xs);">Môn 1 · PRO1014</span>
+            <h3 style="margin-bottom: var(--space-xs);">Nhập môn Lập trình &amp; Thuật toán</h3>
+            <p class="muted" style="font-size: 0.875rem;">Tổng hợp 10 slide C/JavaScript, 15 sơ đồ khối Flowchart, ghi chú gỡ lỗi vòng lặp và kho đề lab thực hành.</p>
+          </div>
+          <div class="neon-panel is-subtle" style="padding: var(--space-md);">
+            <span class="badge is-pink" style="margin-bottom: var(--space-xs);">Môn 2 · WEB1013</span>
+            <h3 style="margin-bottom: var(--space-xs);">Thiết kế Trang Web &amp; UI/UX</h3>
+            <p class="muted" style="font-size: 0.875rem;">Lưu trữ tài liệu HTML5/CSS Grid, bảng màu WCAG AA, file phác thảo Figma Wireframe và cheat-sheet Flexbox.</p>
+          </div>
+          <div class="neon-panel is-subtle" style="padding: var(--space-md);">
+            <span class="badge is-yellow" style="margin-bottom: var(--space-xs);">Môn 3 · COM2012</span>
+            <h3 style="margin-bottom: var(--space-xs);">Cơ sở Dữ liệu Quan hệ (SQL)</h3>
+            <p class="muted" style="font-size: 0.875rem;">Gồm mô hình ERD chuẩn hóa 1NF–3NF, tập lệnh SELECT/JOIN mẫu và ghi chú bảo toàn toàn vẹn dữ liệu.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 2: AI NOTE APP INTERACTIVE PROTOTYPE & DASHBOARD                 -->
+    <!-- ===================================================================== -->
+    <section class="section-block" id="section-part2">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Phần 2 · Xây dựng ứng dụng cá nhân (10% GĐ2 + 40% Bảo vệ)</p>
+          <h2>Dashboard Ứng Dụng Quản Lý Ghi Chú Cá Nhân (AI Note App)</h2>
+        </div>
+        <span class="badge is-pink">Y4 (Phác thảo &amp; Vận hành) + Y5 (10 Notes / 5 Ngày) + Y6 (Google AI Studio)</span>
+      </div>
+
+      <!-- 2.1: 3-Column Wireframe Interactive Prototype -->
+      <div class="neon-panel">
+        <div class="section-head" style="margin-bottom: var(--space-md);">
+          <div>
+            <p class="kicker">Hạng mục Y4.1 &amp; Y4.2 · Bản vẽ phác thảo giao diện Wireframe 3 cột</p>
+            <h3>Nguyên Mẫu Tương Tác 3 Cột (Sidebar Lọc · Lưới Ghi Chú · Trợ Lý AI Copilot)</h3>
+          </div>
+          <button type="button" class="btn btn-neon btn-sm" onclick="toggleAddNoteForm()">
+            <i data-lucide="plus-circle" style="width:14px;height:14px;"></i> Thêm ghi chú mới
+          </button>
+        </div>
+
+        <!-- Collapsible Quick Add Note Form -->
+        <div id="add-note-drawer" class="neon-panel is-subtle" style="margin-bottom: var(--space-md);" hidden>
+          <h3 style="margin-bottom: var(--space-sm);">Tạo ghi chú cá nhân mới vào kho dữ liệu</h3>
+          <div class="control-bar" style="grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));">
+            <div class="field-group">
+              <label class="field-label" for="new-note-title">Tiêu đề ghi chú</label>
+              <input type="text" id="new-note-title" class="cyber-input" placeholder="Ví dụ: Tóm tắt kỹ thuật Prompt Chain...">
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="new-note-day">Ngày áp dụng</label>
+              <select id="new-note-day" class="cyber-select">
+                <option value="Ngày 1">Ngày 1 (18/11)</option>
+                <option value="Ngày 2">Ngày 2 (19/11)</option>
+                <option value="Ngày 3">Ngày 3 (20/11)</option>
+                <option value="Ngày 4">Ngày 4 (21/11)</option>
+                <option value="Ngày 5" selected>Ngày 5 (22/11)</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="new-note-tags">Thẻ phân loại (cách nhau dấu phẩy)</label>
+              <input type="text" id="new-note-tags" class="cyber-input" placeholder="#AIStudio, #Assignment">
+            </div>
+          </div>
+          <div class="field-group" style="margin-top: var(--space-sm);">
+            <label class="field-label" for="new-note-content">Nội dung ghi chú thực tế</label>
+            <textarea id="new-note-content" class="cyber-textarea" placeholder="Nhập nội dung kiến thức hoặc công việc cần AI xử lý..."></textarea>
+          </div>
+          <div style="display:flex; gap: var(--space-sm); align-items:center; margin-top: var(--space-sm);">
+            <button type="button" class="btn btn-cyan btn-sm" onclick="saveNewNote()">Lưu ghi chú</button>
+            <button type="button" class="btn btn-sm" onclick="toggleAddNoteForm()">Đóng</button>
+            <span class="muted" id="add-note-feedback" style="font-size: 0.85rem;"></span>
+          </div>
+        </div>
+
+        <!-- 3-Column Wireframe Layout -->
+        <div class="wireframe-shell">
+          <!-- Column 1: Left Sidebar Filters -->
+          <aside class="wf-column" aria-label="Cột 1 Wireframe: Sidebar lọc thẻ và ngày">
+            <div class="wf-col-header">
+              <span class="mono-label">Cột 1 · Điều hướng</span>
+              <span class="badge">Sidebar</span>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="wf-search">Lọc nhanh ghi chú</label>
+              <input type="search" id="wf-search" class="cyber-input" placeholder="Tìm tiêu đề, nội dung..." oninput="renderWireframeNotes()">
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Lọc theo Ngày (5 ngày)</span>
+              <div class="tag-btn-list" id="wf-day-filters">
+                <button type="button" class="filter-chip is-active" onclick="setNoteDayFilter('all', this)">Tất cả</button>
+                <button type="button" class="filter-chip" onclick="setNoteDayFilter('Ngày 1', this)">Ngày 1</button>
+                <button type="button" class="filter-chip" onclick="setNoteDayFilter('Ngày 2', this)">Ngày 2</button>
+                <button type="button" class="filter-chip" onclick="setNoteDayFilter('Ngày 3', this)">Ngày 3</button>
+                <button type="button" class="filter-chip" onclick="setNoteDayFilter('Ngày 4', this)">Ngày 4</button>
+                <button type="button" class="filter-chip" onclick="setNoteDayFilter('Ngày 5', this)">Ngày 5</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <span class="field-label">Lọc theo Thẻ AI (#Tag)</span>
+              <div class="tag-btn-list" id="wf-tag-filters"></div>
+            </div>
+          </aside>
+
+          <!-- Column 2: Center Note Card Grid -->
+          <div class="wf-column is-center">
+            <div class="wf-col-header">
+              <span class="mono-label" style="color: var(--secondary);">Cột 2 · Lưới thẻ ghi chú trung tâm</span>
+              <span class="badge is-cyan" id="wf-visible-count">10 thẻ</span>
+            </div>
+            <div class="wf-note-grid" id="wf-note-grid"></div>
+          </div>
+
+          <!-- Column 3: Right AI Copilot Assistant -->
+          <div class="wf-column is-copilot">
+            <div class="wf-col-header">
+              <span class="mono-label" style="color: var(--primary);">Cột 3 · Trợ lý AI Copilot</span>
+              <span class="badge is-pink">Gemini AI Studio</span>
+            </div>
+            <div id="copilot-selected-meta" style="font-size: 0.85rem;">
+              Chọn một thẻ ghi chú ở cột giữa để AI Copilot phân tích ngữ cảnh ngay lập tức.
+            </div>
+            <div class="chip-row">
+              <button type="button" class="btn btn-cyan btn-sm" onclick="runCopilotAction('summary')">Tóm tắt</button>
+              <button type="button" class="btn btn-neon btn-sm" onclick="runCopilotAction('tags')">Gợi ý thẻ</button>
+              <button type="button" class="btn btn-sm" onclick="runCopilotAction('todos')">Trích Action</button>
+            </div>
+            <div class="copilot-output" id="copilot-output">
+              <span class="mono-label">Kết quả AI Copilot</span>
+              <p class="muted" style="font-size: 0.85rem;">Đang chờ lệnh phân tích trên ghi chú được chọn...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2.2: Interactive Workflow Flowchart (Y4.3) -->
+      <div class="neon-panel is-cyan">
+        <div class="section-head" style="margin-bottom: var(--space-md);">
+          <div>
+            <p class="kicker">Hạng mục Y4.3 · Cách vận hành các chức năng chính</p>
+            <h3>Sơ Đồ Quy Trình Vận Hành Tương Tác (5 Bước Khép Kín)</h3>
+          </div>
+          <button type="button" class="btn btn-cyan btn-sm" onclick="playWorkflowSimulation()">
+            <i data-lucide="play" style="width:14px;height:14px;"></i> Chạy mô phỏng luồng
+          </button>
+        </div>
+
+        <div class="workflow-strip" id="workflow-strip"></div>
+
+        <div class="wf-step-detail" id="wf-step-detail" style="margin-top: var(--space-md);"></div>
+      </div>
+
+      <!-- 2.3: 10 Personal Notes Ledger (Days 1-5) -->
+      <div class="neon-panel">
+        <div class="section-head" style="margin-bottom: var(--space-md);">
+          <div>
+            <p class="kicker">Hạng mục Y5 · Tối thiểu 10 ghi chú ý nghĩa / 5 ngày</p>
+            <h3>Nhật Ký 10 Ghi Chú Cá Nhân Thực Tế (Ngày 1 → Ngày 5)</h3>
+          </div>
+          <div class="field-group" style="min-width: 200px;">
+            <label class="field-label" for="table-day-filter">Lọc bảng theo ngày</label>
+            <select id="table-day-filter" class="cyber-select" onchange="renderNotesTable()" style="min-height: 40px;">
+              <option value="all">Tất cả 5 ngày (10+ ghi chú)</option>
+              <option value="Ngày 1">Ngày 1 (18/11/2026)</option>
+              <option value="Ngày 2">Ngày 2 (19/11/2026)</option>
+              <option value="Ngày 3">Ngày 3 (20/11/2026)</option>
+              <option value="Ngày 4">Ngày 4 (21/11/2026)</option>
+              <option value="Ngày 5">Ngày 5 (22/11/2026)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Thời gian</th>
+                <th>Tiêu đề &amp; Nội dung cốt lõi</th>
+                <th>Bài học</th>
+                <th>Thẻ AI</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="notes-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2.4: Interactive Google AI Studio 4-Feature Demo (Y6) -->
+      <div class="neon-panel is-cyan">
+        <div class="section-head" style="margin-bottom: var(--space-md);">
+          <div>
+            <p class="kicker">Hạng mục Y6 · Yêu cầu mở rộng Ứng dụng AI</p>
+            <h3>Phòng Lab Tương Tác 4 Tính Năng Google AI Studio</h3>
+          </div>
+          <span class="badge is-cyan">Model Preset: Gemini 2.5 Flash · System Prompt Grounded</span>
+        </div>
+
+        <div class="ai-studio-grid">
+          <!-- Left: Controls & Input -->
+          <div style="display:flex; flex-direction:column; gap: var(--space-md);">
+            <div>
+              <span class="field-label" style="display:block; margin-bottom: var(--space-xs);">Chọn tính năng AI Studio</span>
+              <div class="ai-mode-tabs">
+                <button type="button" class="filter-chip is-pink is-active" id="aimode-summarize" onclick="setAiDemoMode('summarize')">
+                  <i data-lucide="file-text" style="width:14px;height:14px;"></i> 1. Tự động tóm tắt
+                </button>
+                <button type="button" class="filter-chip is-pink" id="aimode-autotag" onclick="setAiDemoMode('autotag')">
+                  <i data-lucide="tags" style="width:14px;height:14px;"></i> 2. Gán thẻ tự động
+                </button>
+                <button type="button" class="filter-chip is-pink" id="aimode-rag" onclick="setAiDemoMode('rag')">
+                  <i data-lucide="message-square-code" style="width:14px;height:14px;"></i> 3. Hỏi đáp kho ghi chú
+                </button>
+                <button type="button" class="filter-chip is-pink" id="aimode-actions" onclick="setAiDemoMode('actions')">
+                  <i data-lucide="list-checks" style="width:14px;height:14px;"></i> 4. Trích xuất Action Items
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group" id="ai-source-note-group">
+              <label class="field-label" for="ai-note-select">Nạp nhanh từ 10 ghi chú mẫu</label>
+              <select id="ai-note-select" class="cyber-select" onchange="loadNoteIntoAiStudio()"></select>
+            </div>
+
+            <div class="field-group" id="ai-rag-presets-group" hidden>
+              <span class="field-label">Câu hỏi gợi ý trên toàn bộ kho 10 ghi chú</span>
+              <div class="chip-row">
+                <button type="button" class="filter-chip" onclick="askRagPreset('Sự khác nhau giữa CPU, GPU và TPU?')">CPU vs GPU vs TPU?</button>
+                <button type="button" class="filter-chip" onclick="askRagPreset('Tiến độ 5 ngày làm Assignment của tôi ra sao?')">Tổng hợp 5 ngày?</button>
+                <button type="button" class="filter-chip" onclick="askRagPreset('Làm sao giảm Hallucination khi dùng AI Studio?')">Giảm Hallucination?</button>
+                <button type="button" class="filter-chip" onclick="askRagPreset('Nguyên tắc ISO 27000 cần nhớ khi bảo vệ?')">ISO 27000 là gì?</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="ai-input-text" id="ai-input-label">Nội dung đầu vào gửi tới Google AI Studio</label>
+              <textarea id="ai-input-text" class="cyber-textarea"></textarea>
+            </div>
+
+            <div class="field-group" id="ai-summary-style-group">
+              <label class="field-label" for="ai-summary-style">Định dạng đầu ra</label>
+              <select id="ai-summary-style" class="cyber-select">
+                <option value="bullet">3 ý chính súc tích (Bullet points)</option>
+                <option value="oneliner">Tóm tắt siêu ngắn 1 câu</option>
+                <option value="defense">Gạch đầu dòng trả lời vấn đáp</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn btn-neon" onclick="executeAiStudioDemo()">
+              <i data-lucide="sparkles" style="width:15px;height:15px;"></i> Chạy phân tích Google AI Studio
+            </button>
+          </div>
+
+          <!-- Right: Structured AI Output -->
+          <div style="display:flex; flex-direction:column; gap: var(--space-sm);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="mono-label" style="color: var(--secondary);">Đầu ra từ Gemini Pipeline</span>
+              <span class="badge is-cyan" id="ai-latency-badge">Trạng thái: Sẵn sàng</span>
+            </div>
+            <div class="ai-result-box" id="ai-result-box"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PART 3: PROGRESS TRACKER, GRADING ANALYTICS & PACKAGING               -->
+    <!-- ===================================================================== -->
+    <section class="section-block" id="section-progress">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Kiểm định chất lượng &amp; Hồ sơ bảo vệ</p>
+          <h2>Tiến Độ Yêu Cầu Y1–Y6 &amp; Phân Tích Trọng Số Điểm (60%)</h2>
+        </div>
+        <span class="badge is-yellow">Chuẩn bị vấn đáp &amp; đóng gói .ZIP</span>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="neon-panel">
+          <span class="mono-label">Biểu đồ 1 · Cơ cấu điểm Assignment (Tổng 60% môn học)</span>
+          <h3 style="margin: var(--space-xs) 0 var(--space-md) 0;">Phân Bổ Điểm Giai Đoạn &amp; Bảo Vệ</h3>
+          <div class="chart-box" style="min-height: 280px;">
+            <canvas id="gradingChart"></canvas>
+          </div>
+        </div>
+
+        <div class="neon-panel is-cyan">
+          <span class="mono-label">Biểu đồ 2 · Nhịp độ ghi chú &amp; ôn tập 5 ngày (Y5)</span>
+          <h3 style="margin: var(--space-xs) 0 var(--space-md) 0;">Số Ghi Chú &amp; Tác Vụ AI Theo Ngày</h3>
+          <div class="chart-box" style="min-height: 280px;">
+            <canvas id="activityChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="neon-panel">
+        <div class="section-head" style="margin-bottom: var(--space-md);">
+          <div>
+            <p class="kicker">Checklist nộp bài tương tác</p>
+            <h3>Danh Sách Kiểm Tra Đạt Chuẩn 100% Yêu Cầu Đề Assignment</h3>
+          </div>
+          <button type="button" class="btn btn-sm" id="reset-progress-btn" onclick="resetChecklistProgress(this)">Đặt lại mặc định</button>
+        </div>
+        <div class="checklist-grid" id="checklist-grid"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- DETAIL MODAL -->
+  <div class="modal-backdrop" id="detail-modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div>
+          <p class="kicker" id="modal-kicker">Chi tiết mục lục</p>
+          <h2 id="modal-title">Tiêu đề chi tiết</h2>
+        </div>
+        <button type="button" class="btn btn-sm" onclick="closeModal()" aria-label="Đóng cửa sổ">
+          <i data-lucide="x" style="width:16px;height:16px;"></i> Đóng
+        </button>
+      </div>
+      <div id="modal-body" style="display:flex; flex-direction:column; gap: var(--space-md);"></div>
+    </div>
+  </div>
+
+  <!-- INLINE TOAST -->
+  <div class="toast-banner" id="toast-banner" hidden role="status" aria-live="polite"></div>
+
+  <api-shim></api-shim>
+
+  <script>
+    // =========================================================================
+    // DATA: 8 LESSONS (GROUNDED IN SLIDES 1-8 & ASSIGNMENT PDF)
+    // =========================================================================
+    const LESSONS = [
+      {
+        id: 1,
+        group: `core`,
+        code: `Bài 1`,
+        title: `Tổng quan CMCN 4.0, CNTT 4.0 & Chuyển đổi số`,
+        coreSummary: `CMCN 4.0 (từ ~2010) kết nối thế giới vật lý và thế giới số qua AI, IoT và Robot thông minh; dữ liệu trở thành tài nguyên chiến lược. Sinh viên CNTT rèn luyện theo chu trình CDIO (Conceive – Design – Implement – Operate).`,
+        files: [
+          { name: `Slide 1 - Tổng quan về CMCN 4.0, CNTT 4.0, CĐS.pptx`, size: `2.4 MB`, type: `PPTX` },
+          { name: `So_do_CDIO_va_Ky_nang_Sinh_vien_CNTT.pdf`, size: `480 KB`, type: `PDF` },
+          { name: `Bang_so_sanh_CMCN_1_den_4.docx`, size: `310 KB`, type: `DOCX` }
+        ],
+        mediaTitle: `Sơ đồ 4 Cuộc CMCN & Chu trình CDIO`,
+        mediaNote: `Video tóm tắt tự học (08:45): Phân biệt Số hóa (Digitization) và Chuyển đổi số (Digital Transformation).`,
+        refs: [
+          { domain: `notebooklm.google.com`, desc: `Không gian NotebookLM tổng hợp Slide 1 & câu hỏi ôn tập` },
+          { domain: `weforum.org`, desc: `Khung khái niệm Cách mạng Công nghiệp lần thứ 4` },
+          { domain: `dx.mic.gov.vn`, desc: `Cổng thông tin Chuyển đổi số Quốc gia Việt Nam` }
+        ],
+        studyNote: `Để thích nghi thời đại 4.0, sinh viên CNTT cần kết hợp 3 nhóm năng lực: (1) Chắc kiến thức nền & tư duy logic, lập trình; (2) Kỹ năng mềm như giao tiếp, thuyết trình, làm việc nhóm, quản lý thời gian; (3) Tiếng Anh và tinh thần học tập suốt đời qua dự án thực tế.`
+      },
+      {
+        id: 2,
+        group: `core`,
+        code: `Bài 2`,
+        title: `Kiến trúc Máy tính, Phần cứng & TPU/GPU`,
+        coreSummary: `Một hệ thống máy tính hoàn chỉnh phối hợp nhịp nhàng giữa CPU (xử lý tuần tự), RAM (lưu tạm thời), Ổ cứng (lưu lâu dài), Thiết bị nhập/xuất và Hệ điều hành; mở rộng với GPU/TPU tăng tốc tính toán ma trận AI.`,
+        files: [
+          { name: `Slide 2 - Computer, Hardware.pptx`, size: `3.1 MB`, type: `PPTX` },
+          { name: `Bang_so_sanh_CPU_GPU_TPU.pdf`, size: `620 KB`, type: `PDF` },
+          { name: `Checklist_Chon_May_Tinh_Hoc_CNTT.xlsx`, size: `190 KB`, type: `XLSX` }
+        ],
+        mediaTitle: `Kiến trúc Von Neumann & So sánh CPU / GPU / TPU`,
+        mediaNote: `Infographic phân tích lựa chọn cấu hình laptop theo ngành học, ngân sách và nhu cầu lập trình.`,
+        refs: [
+          { domain: `cloud.google.com/tpu`, desc: `Tài liệu kiến trúc Tensor Processing Unit cho Deep Learning` },
+          { domain: `intel.com`, desc: `Kiến trúc vi xử lý đa nhân và bộ nhớ đệm Cache` },
+          { domain: `notebooklm.google.com`, desc: `Ghi chú đối chiếu cấu hình phần cứng sinh viên` }
+        ],
+        studyNote: `Sinh viên CNTT nên chọn máy có tối thiểu 16GB RAM và SSD NVMe để đáp ứng lập trình, chạy máy ảo/Docker và làm việc nhóm trực tuyến. Với các tác vụ huấn luyện AI nặng, tận dụng TPU/GPU đám mây giúp tiết kiệm chi phí đầu tư phần cứng cá nhân.`
+      },
+      {
+        id: 3,
+        group: `infra`,
+        code: `Bài 3`,
+        title: `Hệ điều hành, Ảo hóa & Containerization (Docker)`,
+        coreSummary: `Hệ điều hành quản lý toàn bộ phần cứng và tiến trình ứng dụng. Công nghệ tiến hóa từ Ảo hóa truyền thống (Hypervisor + Guest OS) sang Containerization (Docker) chia sẻ chung OS Kernel để triển khai nhanh và đồng nhất.`,
+        files: [
+          { name: `Slide 3 - Operating System.pptx`, size: `2.8 MB`, type: `PPTX` },
+          { name: `Docker_Cheatsheet_Co_ban.pdf`, size: `540 KB`, type: `PDF` },
+          { name: `So_sanh_VM_Hypervisor_vs_Docker.docx`, size: `410 KB`, type: `DOCX` }
+        ],
+        mediaTitle: `Kiến trúc Máy ảo (VM) vs Container (Docker)`,
+        mediaNote: `Video thực hành (11:20): Đóng gói ứng dụng web cá nhân vào Docker Image và chạy trên mọi OS.`,
+        refs: [
+          { domain: `docs.docker.com`, desc: `Tài liệu chính thức về Container, Image và Dockerfile` },
+          { domain: `kernel.org`, desc: `Kiến trúc nhân hệ điều hành Linux và quản lý tiến trình` },
+          { domain: `notebooklm.google.com`, desc: `Tóm tắt so sánh Ảo hóa và Containerization Slide 3` }
+        ],
+        studyNote: `Docker giải quyết triệt để lỗi "chạy được trên máy em nhưng lỗi khi nộp bài". Nhờ chia sẻ trực tiếp nhân hệ điều hành chủ thay vì cài lại cả Guest OS như máy ảo, Container khởi động chỉ trong vài giây và tốn ít RAM hơn rất nhiều.`
+      },
+      {
+        id: 4,
+        group: `infra`,
+        code: `Bài 4`,
+        title: `Phần mềm, Điện toán đám mây (Cloud) & Platform`,
+        coreSummary: `Phần mềm gồm 4 thành phần (Mã nguồn, Quy trình, Tài liệu, Dữ liệu) với các nhóm bản quyền thương mại và Open Source. Cloud chia thành Public/Private/Hybrid cùng 3 tầng dịch vụ IaaS, PaaS và SaaS.`,
+        files: [
+          { name: `Slide 4 - Software, Cloud, Platform.pptx`, size: `3.5 MB`, type: `PPTX` },
+          { name: `Phan_loai_Ban_quyen_Phan_mem.pdf`, size: `490 KB`, type: `PDF` },
+          { name: `Mo_hinh_IaaS_PaaS_SaaS.docx`, size: `380 KB`, type: `DOCX` }
+        ],
+        mediaTitle: `Tháp dịch vụ Cloud: IaaS → PaaS → SaaS`,
+        mediaNote: `Sơ đồ phân loại phần mềm thông dụng (Office, 7-Zip, Unikey, NetBeans, AutoCAD, Google Drive) theo bản quyền.`,
+        refs: [
+          { domain: `cloud.google.com`, desc: `Mô hình Public Cloud, Multi-tenant và PaaS` },
+          { domain: `opensource.org`, desc: `Tiêu chuẩn phần mềm mã nguồn mở (Open Source)` },
+          { domain: `workspace.google.com`, desc: `Bộ công cụ SaaS cộng tác tài liệu trực tuyến` }
+        ],
+        studyNote: `Public Cloud (Google Drive, OneDrive) phù hợp học tập vì không tốn chi phí hạ tầng ban đầu và triển khai tức thì; trong khi Private Cloud bảo mật cao cho ngân hàng/chính phủ. PaaS giúp lập trình viên tập trung vào code và cấu hình mà không phải tự bảo trì máy chủ vật lý.`
+      },
+      {
+        id: 5,
+        group: `infra`,
+        code: `Bài 5`,
+        title: `Mạng máy tính, Internet, Mạng 5G & IoT`,
+        coreSummary: `Mạng máy tính và Internet kết nối thiết bị toàn cầu thông qua bộ giao thức chuẩn. Mạng di động 5G với băng thông siêu rộng và độ trễ cực thấp là hạ tầng xương sống cho hàng tỷ thiết bị Internet vạn vật (IoT).`,
+        files: [
+          { name: `Slide 5 - Network, Internet, IOT.pptx`, size: `2.6 MB`, type: `PPTX` },
+          { name: `Giao_thuc_TCP_IP_va_DNS_Co_ban.pdf`, size: `710 KB`, type: `PDF` },
+          { name: `Mo_hinh_Smart_Campus_5G_IoT.docx`, size: `450 KB`, type: `DOCX` }
+        ],
+        mediaTitle: `Chuỗi kết nối IoT 4 tầng trên hạ tầng 5G`,
+        mediaNote: `Video minh họa (09:15): Hành trình gói tin từ cảm biến nhiệt độ qua Gateway 5G lên Cloud Dashboard.`,
+        refs: [
+          { domain: `ietf.org`, desc: `Tài liệu chuẩn hóa các giao thức Internet TCP/IP` },
+          { domain: `itu.int`, desc: `Khung thông số mạng di động thế hệ thứ 5 (IMT-2020)` },
+          { domain: `notebooklm.google.com`, desc: `Hệ thống hóa kiến thức Mạng & IoT Slide 5` }
+        ],
+        studyNote: `Khi vận dụng mạng & IoT vào xã hội số, yếu tố cốt lõi song hành với tốc độ là ý thức sử dụng Internet an toàn: kiểm tra nguồn tin, bật xác thực đa yếu tố và mã hóa kết nối khi truy cập từ mạng công cộng.`
+      },
+      {
+        id: 6,
+        group: `future`,
+        code: `Bài 6`,
+        title: `Tư duy thuật toán, IT Automation & Vibe-code`,
+        coreSummary: `Tư duy lập trình phân rã vấn đề phức tạp thành các bước thuật toán rõ ràng, đồng thời nhận biết giới hạn tính toán. Kết hợp IT Automation cùng Low-code, No-code và Vibe-code giúp tăng tốc tạo phần mềm cá nhân.`,
+        files: [
+          { name: `Slide 6 - Computational thinking, IT Automation.pptx`, size: `2.9 MB`, type: `PPTX` },
+          { name: `4_Tru_cot_Tu_duy_Lap_trinh.pdf`, size: `580 KB`, type: `PDF` },
+          { name: `Quy_trinh_Vibe_Code_An_toan.md`, size: `120 KB`, type: `MD` }
+        ],
+        mediaTitle: `4 Trụ cột Tư duy Thuật toán & Phổ Vibe-code`,
+        mediaNote: `Minh họa chuyển đổi từ yêu cầu ngôn ngữ tự nhiên sang mã nguồn có kiểm thử qua Google AI Studio.`,
+        refs: [
+          { domain: `aistudio.google.com`, desc: `Môi trường thử nghiệm Vibe-code và sinh mã cấu trúc` },
+          { domain: `n8n.io`, desc: `Tài liệu tham khảo quy trình tự động hóa IT Automation` },
+          { domain: `cs.cmu.edu`, desc: `Nền tảng Tư duy tính toán (Computational Thinking)` }
+        ],
+        studyNote: `Dù Vibe-code và No-code cho phép tạo giao diện nhanh chóng, tư duy thuật toán vẫn là nền tảng bắt buộc để sinh viên kiểm tra tính đúng đắn, xử lý các trường hợp biên và hiểu rõ "không phải mọi thứ đều có thể tính toán".`
+      },
+      {
+        id: 7,
+        group: `future`,
+        code: `Bài 7`,
+        title: `AI, Big Data & Prompt Engineering`,
+        coreSummary: `Dữ liệu và Trí tuệ nhân tạo là động lực trung tâm của Phát triển 4.0. Kỹ thuật Prompt Engineering giúp điều khiển các mô hình AI tạo sinh trả lời chính xác, có cấu trúc để ứng dụng trực tiếp vào học tập và công việc.`,
+        files: [
+          { name: `Slide 7 - AI, Data in studying, working.pptx`, size: `3.3 MB`, type: `PPTX` },
+          { name: `Prompt_Engineering_Playbook.pdf`, size: `820 KB`, type: `PDF` },
+          { name: `System_Prompt_AI_Note_App.json`, size: `95 KB`, type: `JSON` }
+        ],
+        mediaTitle: `Pipeline Dữ liệu & Công thức Prompt 5 thành phần`,
+        mediaNote: `Video demo (12:40): Cấu hình System Instruction trong Google AI Studio để trích xuất To-do list từ ghi chú.`,
+        refs: [
+          { domain: `ai.google.dev`, desc: `Hướng dẫn thiết kế Prompt & Gemini API chính thức` },
+          { domain: `notebooklm.google.com`, desc: `Ứng dụng AI hỏi đáp dựa trên nguồn tài liệu tin cậy` },
+          { domain: `kaggle.com`, desc: `Kho dữ liệu mẫu thực hành phân tích Big Data` }
+        ],
+        studyNote: `Công thức Prompt hiệu quả khi xây dựng Phần 2 Assignment gồm 5 phần: Vai trò (Role) + Ngữ cảnh (Context) + Nhiệm vụ (Task) + Định dạng đầu ra (JSON/Bullet) + Ràng buộc chống bịa đặt (Grounded only in provided notes).`
+      },
+      {
+        id: 8,
+        group: `future`,
+        code: `Bài 8`,
+        title: `An toàn thông tin (ISO 27000) & Đạo đức số`,
+        coreSummary: `Quản lý an toàn thông tin theo chuẩn ISO 27000 (ISMS) dựa trên 9 nguyên tắc từ nâng cao nhận thức, đánh giá rủi ro đến phòng ngừa chủ động; song hành với Đạo đức số và tuân thủ Luật An ninh mạng Việt Nam.`,
+        files: [
+          { name: `Slide 8 - An toàn thông tin và Đạo đức số.pptx`, size: `2.7 MB`, type: `PPTX` },
+          { name: `9_Nguyen_tac_ISO_27000_ISMS.pdf`, size: `640 KB`, type: `PDF` },
+          { name: `Luat_An_ninh_mang_VN_Tom_tat.docx`, size: `510 KB`, type: `DOCX` }
+        ],
+        mediaTitle: `Chu trình ISO 27000 ISMS & Bộ quy tắc Đạo đức số`,
+        mediaNote: `Case study phân tích rủi ro lộ lọt dữ liệu cá nhân khi đưa tài liệu nội bộ lên công cụ AI công cộng.`,
+        refs: [
+          { domain: `iso.org`, desc: `Tổng quan tiêu chuẩn Hệ thống quản lý ATTT ISO/IEC 27000` },
+          { domain: `thuvienphapluat.vn`, desc: `Văn bản Luật An ninh mạng & Luật An toàn thông tin mạng VN` },
+          { domain: `khonggianmang.vn`, desc: `Cẩm nang nhận diện lừa đảo và bảo vệ danh tính số` }
+        ],
+        studyNote: `Theo ISO 27000, an ninh thông tin không chỉ là phần mềm diệt virus mà là quy trình liên tục: đánh giá rủi ro, phân công trách nhiệm và bảo mật tích hợp từ khâu thiết kế. Về Đạo đức số, luôn minh bạch khi dùng AI và không xâm phạm quyền riêng tư.`
+      }
+    ];
+
+    // =========================================================================
+    // DATA: 10 PERSONAL NOTES (5 DAYS CONTINUOUS APPLICATION)
+    // =========================================================================
+    const INITIAL_NOTES = [
+      {
+        id: `N-01`,
+        day: `Ngày 1`,
+        date: `18/11/2026`,
+        title: `Phân tích mô hình CDIO & lộ trình kỹ năng sinh viên CNTT 4.0`,
+        lesson: `Bài 1`,
+        tags: [`#CMCN40`, `#CDIO`, `#KyNang`],
+        status: `Đã duyệt`,
+        content: `Tổng hợp từ Slide 1: CMCN 4.0 kết nối vật lý–số với AI, IoT và Robot thông minh. Bản thân cần rèn kỹ năng tư duy lập trình, giải quyết vấn đề, giao tiếp và tiếng Anh song song làm dự án thực tế. Việc làm ngay: lập lịch học 45 phút tiếng Anh chuyên ngành mỗi tối và hoàn thành mục tiêu bài 1 trong NotebookLM.`
+      },
+      {
+        id: `N-02`,
+        day: `Ngày 1`,
+        date: `18/11/2026`,
+        title: `Đối chiếu CPU, GPU và TPU khi chọn máy học CNTT 4.0`,
+        lesson: `Bài 2`,
+        tags: [`#Hardware`, `#TPU`, `#AI`],
+        status: `Đã duyệt`,
+        content: `CPU mạnh xử lý tuần tự và điều phối hệ điều hành; GPU có hàng nghìn nhân xử lý đồ họa song song; TPU do Google thiết kế chuyên biệt cho phép nhân ma trận mạng nơ-ron. Kết luận chọn laptop học tập: 16GB RAM, SSD 512GB và dùng Google Colab TPU cho bài tập AI nặng.`
+      },
+      {
+        id: `N-03`,
+        day: `Ngày 2`,
+        date: `19/11/2026`,
+        title: `Thực hành đóng gói môi trường bằng Docker Container`,
+        lesson: `Bài 3`,
+        tags: [`#OS`, `#Docker`, `#DevOps`],
+        status: `Đã duyệt`,
+        content: `Khác với máy ảo (VM) phải giả lập toàn bộ phần cứng và cài Guest OS nặng nề, Docker Container dùng chung Linux Kernel của máy chủ nên khởi chạy tức thì. Việc cần làm: viết Dockerfile mẫu cho trang HTML tĩnh và kiểm tra lệnh docker build / docker run trước buổi bảo vệ.`
+      },
+      {
+        id: `N-04`,
+        day: `Ngày 2`,
+        date: `19/11/2026`,
+        title: `Phân biệt IaaS, PaaS, SaaS và bản quyền phần mềm học tập`,
+        lesson: `Bài 4`,
+        tags: [`#Cloud`, `#Platform`, `#License`],
+        status: `Đã duyệt`,
+        content: `Ghi nhớ 3 tầng đám mây: IaaS thuê hạ tầng thô, PaaS thuê nền tảng chạy code (nhà cung cấp lo OS và mạng), SaaS dùng ngay qua trình duyệt như Google Workspace. Cần kiểm tra toàn bộ phần mềm đang cài trên laptop để ưu tiên bản miễn phí hợp lệ hoặc Open Source như VS Code, 7-Zip, EVKey.`
+      },
+      {
+        id: `N-05`,
+        day: `Ngày 3`,
+        date: `20/11/2026`,
+        title: `Ý tưởng Smart Classroom dùng mạng 5G và cảm biến IoT`,
+        lesson: `Bài 5`,
+        tags: [`#5G`, `#IoT`, `#Network`],
+        status: `Cần bổ sung`,
+        content: `Mạng 5G cung cấp độ trễ dưới 5ms và mật độ kết nối cao, cho phép cảm biến điểm danh, nhiệt độ phòng học và camera AI đồng bộ tức thời về hệ thống quản lý. Việc cần bổ sung: vẽ thêm sơ đồ 4 tầng (Thiết bị – Mạng 5G – Cloud – Ứng dụng) và kiểm tra lại cơ chế mã hóa Wi-Fi trường học.`
+      },
+      {
+        id: `N-06`,
+        day: `Ngày 3`,
+        date: `20/11/2026`,
+        title: `Áp dụng 4 trụ cột Tư duy thuật toán thiết kế AI Note App`,
+        lesson: `Bài 6`,
+        tags: [`#Algorithm`, `#VibeCode`, `#Design`],
+        status: `Đã duyệt`,
+        content: `Phân rã ứng dụng quản lý ghi chú thành 3 phân hệ: Bộ lọc Sidebar, Lưới hiển thị trung tâm và Trợ lý AI Copilot. Nhận diện mẫu dữ liệu mỗi ghi chú gồm (ID, Ngày, Thẻ, Nội dung, Trạng thái). Khi Vibe-code UI, luôn tự kiểm tra lại logic lọc mảng và bắt lỗi đầu vào rỗng.`
+      },
+      {
+        id: `N-07`,
+        day: `Ngày 4`,
+        date: `21/11/2026`,
+        title: `Xây dựng System Prompt trên Google AI Studio cho 4 tính năng AI`,
+        lesson: `Bài 7`,
+        tags: [`#AIStudio`, `#Prompt`, `#Automation`],
+        status: `Đã duyệt`,
+        content: `Thử nghiệm Prompt Engineering trên Google AI Studio: cấu hình System Prompt yêu cầu mô hình đóng vai Trợ lý học tập CNTT 4.0, trả về JSON chuẩn gồm bản tóm tắt 3 ý, danh sách #Tag đề xuất và mảng Action Items có mức độ ưu tiên. Kết quả phân loại đạt độ chính xác cao khi thử trên 6 ghi chú đầu.`
+      },
+      {
+        id: `N-08`,
+        day: `Ngày 4`,
+        date: `21/11/2026`,
+        title: `Khắc phục lỗi AI bịa thông tin (Hallucination) bằng ngữ cảnh RAG`,
+        lesson: `Bài 7`,
+        tags: [`#AIStudio`, `#RAG`, `#BigData`],
+        status: `Đã duyệt`,
+        content: `Khi hỏi câu hỏi ngoài dữ liệu, mô hình dễ tự suy diễn. Giải pháp áp dụng kỹ thuật Grounding: chỉ cấp đoạn ghi chú khớp từ khóa làm ngữ cảnh, bắt buộc AI trích dẫn đúng mã [N-01..N-10] và trả lời "Không tìm thấy trong kho ghi chú" nếu thiếu dữ liệu.`
+      },
+      {
+        id: `N-09`,
+        day: `Ngày 5`,
+        date: `22/11/2026`,
+        title: `Kiểm tra an toàn dữ liệu ứng dụng theo 9 nguyên tắc ISO 27000`,
+        lesson: `Bài 8`,
+        tags: [`#Security`, `#ISO27000`, `#DaoDucSo`],
+        status: `Đã duyệt`,
+        content: `Rà soát ứng dụng ghi chú theo ISO 27000 ISMS: không lưu mật khẩu hay thông tin nhạy cảm vào ghi chú mẫu gửi lên API AI; tách biệt khóa API khỏi mã nguồn giao diện; tuân thủ Đạo đức số bằng cách ghi rõ nguồn slide bài giảng FPT Polytechnic trong mọi bản tóm tắt.`
+      },
+      {
+        id: `N-10`,
+        day: `Ngày 5`,
+        date: `22/11/2026`,
+        title: `Tổng duyệt sản phẩm nộp bài & Diễn tập bảo vệ 40% điểm`,
+        lesson: `Tổng hợp`,
+        tags: [`#Assignment`, `#BaoVe`, `#Checklist`],
+        status: `Sẵn sàng bảo vệ`,
+        content: `Hoàn tất kiểm tra 6 yêu cầu Y1–Y6: đủ 8 bài học trong NotebookLM (4 loại tài liệu), bản phác thảo 3 cột + flowchart vận hành, đủ 10 ghi chú qua 5 ngày và demo trực tiếp 4 tính năng Google AI Studio. Việc cuối cùng: xuất báo cáo PDF/Word và nén đúng tên PK05104-HuynhNhamTy_CNTT4.0_Assignment.zip.`
+      }
+    ];
+
+    // =========================================================================
+    // DATA: WORKFLOW STEPS (Y4.3)
+    // =========================================================================
+    const WORKFLOW_STEPS = [
+      {
+        step: `Bước 1`,
+        title: `Thu thập & Nhập liệu`,
+        summary: `Sinh viên tạo ghi chú bài học hoặc bài lab kèm ngày áp dụng.`,
+        input: `Văn bản ghi chú thô, ngày học (Ngày 1–5), bài học liên quan.`,
+        process: `Kiểm tra hợp lệ đầu vào (chống rỗng) và gán mã định danh N-xx.`,
+        output: `Bản ghi thô sẵn sàng đưa vào hàng đợi xử lý AI.`
+      },
+      {
+        step: `Bước 2`,
+        title: `Chuẩn hóa & Context`,
+        summary: `Gắn System Prompt và siêu dữ liệu môn CNTT 4.0.`,
+        input: `Bản ghi thô + System Instruction từ Google AI Studio.`,
+        process: `Đóng gói ngữ cảnh (8 bài học CNTT 4.0) và quy tắc chống bịa đặt.`,
+        output: `Prompt Payload hoàn chỉnh chuẩn cấu trúc.`
+      },
+      {
+        step: `Bước 3`,
+        title: `Xử lý Gemini AI Studio`,
+        summary: `Chạy đồng thời 3 tác vụ: Tóm tắt, Gán thẻ, Trích Action Items.`,
+        input: `Prompt Payload gửi qua mô hình Gemini.`,
+        process: `Phân tích ngữ nghĩa, rút trích từ khóa #Tag và phát hiện động từ hành động.`,
+        output: `JSON gồm Summary, Tags[] và TodoList[] có độ ưu tiên.`
+      },
+      {
+        step: `Bước 4`,
+        title: `Lưu trữ & Lập chỉ mục`,
+        summary: `Cập nhật vào kho ghi chú theo Ngày & Thẻ lọc.`,
+        input: `Dữ liệu ghi chú đã làm giàu từ Bước 3.`,
+        process: `Lưu trạng thái bền vững qua App State API và cập nhật bộ lọc Sidebar.`,
+        output: `Thẻ ghi chú hiển thị tức thì ở Lưới trung tâm & Bảng 10 ghi chú.`
+      },
+      {
+        step: `Bước 5`,
+        title: `Truy vấn RAG & Ôn tập`,
+        summary: `Hỏi đáp ngữ cảnh toàn bộ kho ghi chú để chuẩn bị bảo vệ.`,
+        input: `Câu hỏi tự nhiên của sinh viên (ví dụ: so sánh CPU vs TPU).`,
+        process: `Tìm kiếm ghi chú liên quan nhất và tổng hợp câu trả lời có trích dẫn [N-xx].`,
+        output: `Câu trả lời chính xác kèm link nhảy tới ghi chú gốc.`
+      }
+    ];
+
+    // =========================================================================
+    // DATA: CHECKLIST Y1-Y6
+    // =========================================================================
+    const DEFAULT_CHECKLIST = [
+      { id: `Y1`, code: `Y1 · Chính`, title: `Thu thập đủ 8 slide bài học CNTT 4.0 vào NotebookLM`, done: true },
+      { id: `Y2`, code: `Y2 · Chính`, title: `Mỗi bài học có đủ 4 mục: Tập tin, Hình/Video, Link tham chiếu, Ghi chú`, done: true },
+      { id: `Y3`, code: `Y3 · Mở rộng`, title: `Xây dựng thư viện số mở rộng cho các môn học khác`, done: true },
+      { id: `Y4`, code: `Y4 · Chính`, title: `Bản vẽ phác thảo 3 cột (Giao diện chính, chức năng, cách vận hành)`, done: true },
+      { id: `Y5`, code: `Y5 · Chính`, title: `Tối thiểu 10 ghi chú cá nhân ý nghĩa áp dụng liên tục >= 5 ngày`, done: true },
+      { id: `Y6`, code: `Y6 · Mở rộng`, title: `Ứng dụng AI (Google AI Studio) vào quản lý & hỏi đáp ghi chú`, done: true }
+    ];
+
+    // =========================================================================
+    // APP STATE
+    // =========================================================================
+    let appState = {
+      currentView: `all`,
+      lessonGroup: `all`,
+      lessonSearch: ``,
+      lessonCatMap: { 1: `files`, 2: `files`, 3: `files`, 4: `files`, 5: `files`, 6: `files`, 7: `files`, 8: `files` },
+      reviewedLessons: [1, 2, 3, 4, 5, 6, 7, 8],
+      notes: INITIAL_NOTES.map((n) => ({ ...n })),
+      selectedNoteId: `N-01`,
+      wfDayFilter: `all`,
+      wfTagFilter: `all`,
+      activeWorkflowStep: 0,
+      aiDemoMode: `summarize`,
+      checkedActionItems: {},
+      checklist: DEFAULT_CHECKLIST.map((c) => ({ ...c }))
+    };
+
+    let gradingChartInstance = null;
+    let activityChartInstance = null;
+    let workflowTimer = null;
+
+    // =========================================================================
+    // SVG SCHEMATIC GENERATORS (8 LESSONS)
+    // =========================================================================
+    function getLessonSvg(lessonId, compact) {
+      const h = compact ? 135 : 220;
+      const w = 480;
+      const svgs = {
+        1: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="8" y="14" width="102" height="58" rx="4" fill="var(--surface-container)" stroke="var(--outline)"/>
+          <text x="59" y="38" fill="var(--on-surface-variant)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">CMCN 1.0–3.0</text>
+          <text x="59" y="56" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Cơ khí → Số hóa</text>
+          <path d="M114 43 L140 43" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="144" y="10" width="142" height="66" rx="4" fill="var(--surface-container-high)" stroke="var(--primary)" stroke-width="1.5"/>
+          <text x="215" y="34" fill="var(--primary)" font-family="Sora" font-weight="700" font-size="12" text-anchor="middle">CMCN 4.0 (2010+)</text>
+          <text x="215" y="54" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">AI · IoT · Dữ liệu · Robot</text>
+          <path d="M290 43 L316 43" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="320" y="14" width="152" height="58" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/>
+          <text x="396" y="36" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">CDIO FRAMEWORK</text>
+          <text x="396" y="55" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Conceive·Design·Impl·Op</text>
+          <text x="240" y="108" fill="var(--on-surface-variant)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">KẾT NỐI THẾ GIỚI VẬT LÝ ↔ THẾ GIỚI SỐ · HỌC TẬP SUỐT ĐỜI</text>
+        </svg>`,
+        2: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="14" y="20" width="90" height="72" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/>
+          <text x="59" y="48" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">NHẬP / XUẤT</text>
+          <text x="59" y="68" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Phím·Chuột·Màn</text>
+          <path d="M108 56 L142 56" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="146" y="14" width="180" height="84" rx="4" fill="var(--surface-container-high)" stroke="var(--primary)" stroke-width="1.5"/>
+          <text x="236" y="38" fill="var(--primary)" font-family="Sora" font-weight="700" font-size="12" text-anchor="middle">CPU + GPU / TPU</text>
+          <text x="236" y="58" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Tuần tự (CPU) vs Ma trận (TPU)</text>
+          <text x="236" y="78" fill="var(--tertiary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">RAM: Lưu trữ tạm thời</text>
+          <path d="M330 56 L364 56" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="368" y="20" width="98" height="72" rx="4" fill="var(--surface-container)" stroke="var(--outline)"/>
+          <text x="417" y="48" fill="var(--on-surface)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">SSD / HDD</text>
+          <text x="417" y="68" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Lưu trữ lâu dài</text>
+        </svg>`,
+        3: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="16" y="14" width="208" height="102" rx="4" fill="var(--surface-container)" stroke="var(--outline)"/>
+          <text x="120" y="34" fill="var(--on-surface-variant)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">MÁY ẢO (VM HYPERVISOR)</text>
+          <rect x="28" y="44" width="84" height="24" rx="2" fill="var(--surface-container-high)" stroke="var(--primary)"/><text x="70" y="60" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">App + Guest OS</text>
+          <rect x="126" y="44" width="84" height="24" rx="2" fill="var(--surface-container-high)" stroke="var(--primary)"/><text x="168" y="60" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">App + Guest OS</text>
+          <rect x="28" y="76" width="182" height="26" rx="2" fill="var(--surface-container-low)" stroke="var(--outline)"/><text x="119" y="93" fill="var(--on-surface-variant)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Hypervisor + Host OS</text>
+          <rect x="252" y="14" width="212" height="102" rx="4" fill="var(--surface-container)" stroke="var(--secondary)" stroke-width="1.5"/>
+          <text x="358" y="34" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">CONTAINER (DOCKER)</text>
+          <rect x="266" y="44" width="86" height="24" rx="2" fill="var(--surface-container-high)" stroke="var(--secondary)"/><text x="309" y="60" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">App A + Libs</text>
+          <rect x="364" y="44" width="86" height="24" rx="2" fill="var(--surface-container-high)" stroke="var(--secondary)"/><text x="407" y="60" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">App B + Libs</text>
+          <rect x="266" y="76" width="184" height="26" rx="2" fill="var(--surface-container-low)" stroke="var(--secondary)"/><text x="358" y="93" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Docker Engine · Share Kernel</text>
+        </svg>`,
+        4: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="24" y="14" width="432" height="28" rx="4" fill="var(--surface-container-high)" stroke="var(--primary)"/>
+          <text x="240" y="32" fill="var(--primary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">SaaS — Ứng dụng hoàn chỉnh (Google Workspace, Drive)</text>
+          <rect x="44" y="50" width="392" height="28" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/>
+          <text x="240" y="68" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">PaaS — Nền tảng triển khai Code &amp; Cấu hình (Cloud Run, OS)</text>
+          <rect x="64" y="86" width="352" height="28" rx="4" fill="var(--surface-container-low)" stroke="var(--outline)"/>
+          <text x="240" y="104" fill="var(--on-surface)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">IaaS — Hạ tầng mạng, máy chủ ảo, lưu trữ (Public/Private/Hybrid)</text>
+        </svg>`,
+        5: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="12" y="28" width="96" height="64" rx="4" fill="var(--surface-container)" stroke="var(--tertiary)"/>
+          <text x="60" y="56" fill="var(--tertiary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">CẢM BIẾN IoT</text>
+          <text x="60" y="74" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Thu thập vật lý</text>
+          <path d="M112 60 L146 60" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="150" y="22" width="132" height="76" rx="4" fill="var(--surface-container-high)" stroke="var(--secondary)" stroke-width="1.5"/>
+          <text x="216" y="48" fill="var(--secondary)" font-family="Sora" font-weight="700" font-size="12" text-anchor="middle">MẠNG 5G</text>
+          <text x="216" y="68" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Độ trễ &lt; 5ms · Băng thông</text>
+          <text x="216" y="84" fill="var(--on-surface-variant)" font-family="JetBrains Mono" font-size="9" text-anchor="middle">TCP/IP · Wireless</text>
+          <path d="M286 60 L320 60" stroke="var(--primary)" stroke-width="2"/>
+          <rect x="324" y="28" width="142" height="64" rx="4" fill="var(--surface-container)" stroke="var(--primary)"/>
+          <text x="395" y="56" fill="var(--primary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">CLOUD &amp; ACTION</text>
+          <text x="395" y="74" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Phân tích &amp; Điều khiển</text>
+        </svg>`,
+        6: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="12" y="14" width="105" height="44" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/><text x="64" y="40" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">1. Phân rã</text>
+          <rect x="129" y="14" width="105" height="44" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/><text x="181" y="40" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">2. Nhận mẫu</text>
+          <rect x="246" y="14" width="105" height="44" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/><text x="298" y="40" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">3. Trừu tượng</text>
+          <rect x="363" y="14" width="105" height="44" rx="4" fill="var(--surface-container)" stroke="var(--primary)"/><text x="415" y="40" fill="var(--primary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">4. Thuật toán</text>
+          <rect x="12" y="74" width="456" height="40" rx="4" fill="var(--surface-container-high)" stroke="var(--outline)"/>
+          <text x="240" y="98" fill="var(--on-surface)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">IT AUTOMATION · NO-CODE → LOW-CODE → VIBE-CODE (AI STUDIO)</text>
+        </svg>`,
+        7: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="12" y="22" width="110" height="72" rx="4" fill="var(--surface-container)" stroke="var(--outline)"/>
+          <text x="67" y="52" fill="var(--on-surface)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">BIG DATA</text>
+          <text x="67" y="72" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Nhiên liệu 4.0</text>
+          <path d="M126 58 L158 58" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="162" y="16" width="156" height="84" rx="4" fill="var(--surface-container-high)" stroke="var(--primary)" stroke-width="1.5"/>
+          <text x="240" y="42" fill="var(--primary)" font-family="Sora" font-weight="700" font-size="12" text-anchor="middle">PROMPT ENGINEERING</text>
+          <text x="240" y="62" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Role · Context · Task · Format</text>
+          <text x="240" y="80" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Google AI Studio / Gemini</text>
+          <path d="M322 58 L354 58" stroke="var(--secondary)" stroke-width="2"/>
+          <rect x="358" y="22" width="110" height="72" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/>
+          <text x="413" y="52" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">ỨNG DỤNG</text>
+          <text x="413" y="72" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Học tập &amp; Làm việc</text>
+        </svg>`,
+        8: `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="14" y="16" width="212" height="92" rx="4" fill="var(--surface-container)" stroke="var(--primary)"/>
+          <text x="120" y="38" fill="var(--primary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">ISO 27000 · ISMS</text>
+          <text x="120" y="58" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Đánh giá rủi ro · Phòng ngừa</text>
+          <text x="120" y="76" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Trách nhiệm · Đánh giá liên tục</text>
+          <text x="120" y="94" fill="var(--secondary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Bảo mật: C · I · A</text>
+          <rect x="252" y="16" width="214" height="92" rx="4" fill="var(--surface-container)" stroke="var(--secondary)"/>
+          <text x="359" y="38" fill="var(--secondary)" font-family="JetBrains Mono" font-size="11" text-anchor="middle">ĐẠO ĐỨC SỐ &amp; PHÁP LUẬT</text>
+          <text x="359" y="58" fill="var(--on-surface)" font-family="Inter" font-size="10" text-anchor="middle">Minh bạch AI · Tôn trọng bản quyền</text>
+          <text x="359" y="76" fill="var(--on-surface-variant)" font-family="Inter" font-size="10" text-anchor="middle">Luật An ninh mạng Việt Nam</text>
+          <text x="359" y="94" fill="var(--tertiary)" font-family="JetBrains Mono" font-size="10" text-anchor="middle">Bảo vệ dữ liệu cá nhân</text>
+        </svg>`
+      };
+      return svgs[lessonId] || svgs[1];
+    }
+
+    // =========================================================================
+    // VIEW SWITCHING & PROGRESS CALCULATION
+    // =========================================================================
+    function switchView(viewName) {
+      appState.currentView = viewName;
+      const part1 = document.getElementById(`section-part1`);
+      const part2 = document.getElementById(`section-part2`);
+      const prog = document.getElementById(`section-progress`);
+      const indicator = document.getElementById(`active-view-indicator`);
+
+      if (part1) part1.hidden = !(viewName === `all` || viewName === `part1`);
+      if (part2) part2.hidden = !(viewName === `all` || viewName === `part2`);
+      if (prog) prog.hidden = !(viewName === `all` || viewName === `progress`);
+
+      const tabs = [`all`, `part1`, `part2`, `progress`];
+      tabs.forEach((t) => {
+        const el = document.getElementById(`vtab-${t}`);
+        if (el) el.classList.toggle(`is-active`, t === viewName);
+      });
+
+      const labels = {
+        all: `Đang hiển thị: Toàn bộ 2 phần`,
+        part1: `Đang hiển thị: Phần 1 — Thư viện số`,
+        part2: `Đang hiển thị: Phần 2 — AI Note App`,
+        progress: `Đang hiển thị: Tiến độ Y1–Y6 & Biểu đồ`
+      };
+      if (indicator) indicator.textContent = labels[viewName] || labels.all;
+
+      saveState();
+    }
+
+    function updateAssignmentProgressUI() {
+      const doneReqs = appState.checklist.filter((c) => c.done).length;
+      const totalReqs = appState.checklist.length;
+      const reviewedCount = appState.reviewedLessons.length;
+      const notesCount = appState.notes.length;
+
+      const reqScore = (doneReqs / totalReqs) * 70;
+      const lessonScore = (reviewedCount / LESSONS.length) * 20;
+      const noteScore = Math.min(1, notesCount / 10) * 10;
+      const pct = Math.round(reqScore + lessonScore + noteScore);
+
+      const pctEl = document.getElementById(`assignment-progress-pct`);
+      const fillEl = document.getElementById(`assignment-progress-fill`);
+      const wrapEl = document.getElementById(`assignment-progress-bar-wrap`);
+      const capEl = document.getElementById(`assignment-progress-caption`);
+      const kpiRev = document.getElementById(`kpi-lessons-reviewed`);
+      const kpiNotes = document.getElementById(`kpi-notes-count`);
+
+      if (pctEl) pctEl.textContent = `${pct}%`;
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      if (wrapEl) wrapEl.setAttribute(`aria-valuenow`, String(pct));
+      if (capEl) capEl.textContent = `Đã hoàn tất ${doneReqs}/${totalReqs} tiêu chí Y1–Y6 & ôn tập ${reviewedCount}/8 bài học.`;
+      if (kpiRev) kpiRev.textContent = `${reviewedCount} / 8 Bài`;
+      if (kpiNotes) kpiNotes.textContent = `${notesCount} Ghi chú`;
+    }
+
+    // =========================================================================
+    // PART 1: DIGITAL LIBRARY RENDER & INTERACTION
+    // =========================================================================
+    function setLessonGroup(group, btn) {
+      appState.lessonGroup = group;
+      document.querySelectorAll(`[data-lgroup]`).forEach((b) => b.classList.remove(`is-active`));
+      if (btn) btn.classList.add(`is-active`);
+      renderLessons();
+    }
+
+    function filterLibrary() {
+      const inp = document.getElementById(`library-search`);
+      appState.lessonSearch = inp ? inp.value.trim().toLowerCase() : ``;
+      renderLessons();
+    }
+
+    function setAllCardsCategory(cat) {
+      LESSONS.forEach((l) => {
+        appState.lessonCatMap[l.id] = cat;
+      });
+      renderLessons();
+    }
+
+    function setCardCategory(lessonId, cat) {
+      appState.lessonCatMap[lessonId] = cat;
+      renderLessons();
+      saveState();
+    }
+
+    function toggleLessonReviewed(lessonId) {
+      const idx = appState.reviewedLessons.indexOf(lessonId);
+      if (idx >= 0) {
+        appState.reviewedLessons.splice(idx, 1);
+      } else {
+        appState.reviewedLessons.push(lessonId);
+      }
+      renderLessons();
+      updateAssignmentProgressUI();
+      saveState();
+    }
+
+    function copyTextRef(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+      showToast(`Đã sao chép tham chiếu: ${text}`);
+    }
+
+    function renderLessons() {
+      const grid = document.getElementById(`lesson-grid`);
+      if (!grid) return;
+
+      const q = appState.lessonSearch;
+      const filtered = LESSONS.filter((l) => {
+        if (appState.lessonGroup !== `all` && l.group !== appState.lessonGroup) return false;
+        if (!q) return true;
+        const blob = `${l.code} ${l.title} ${l.coreSummary} ${l.studyNote} ${l.files.map((f) => f.name).join(` `)} ${l.refs.map((r) => r.domain + ` ` + r.desc).join(` `)}`.toLowerCase();
+        return blob.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">
+          <h3>Không tìm thấy bài học phù hợp</h3>
+          <p class="muted">Từ khóa "${escapeHtml(q)}" không khớp với nội dung 8 bài học hiện tại.</p>
+          <button type="button" class="btn btn-cyan btn-sm" onclick="resetLibraryFilters()">Đặt lại bộ lọc thư viện</button>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((l, idx) => {
+        const activeCat = appState.lessonCatMap[l.id] || `files`;
+        const isReviewed = appState.reviewedLessons.includes(l.id);
+        const cyanVariant = idx % 2 === 1 ? `is-cyan` : ``;
+
+        let catBody = ``;
+        if (activeCat === `files`) {
+          catBody = `<ul class="resource-list">
+            ${l.files.map((f) => `<li class="resource-item">
+              <span><strong>${escapeHtml(f.name)}</strong></span>
+              <span class="badge is-cyan">${escapeHtml(f.type)} · ${escapeHtml(f.size)}</span>
+            </li>`).join(``)}
+          </ul>`;
+        } else if (activeCat === `media`) {
+          catBody = `<div class="svg-preview-box">${getLessonSvg(l.id, true)}</div>
+            <p style="margin:0; font-size:0.85rem;"><strong>${escapeHtml(l.mediaTitle)}</strong> — <span class="muted">${escapeHtml(l.mediaNote)}</span></p>`;
+        } else if (activeCat === `refs`) {
+          catBody = `<ul class="resource-list">
+            ${l.refs.map((r) => `<li class="resource-item">
+              <div>
+                <div style="color:var(--secondary); font-family:var(--font-label); font-size:0.78rem;">${escapeHtml(r.domain)}</div>
+                <div class="muted" style="font-size:0.82rem;">${escapeHtml(r.desc)}</div>
+              </div>
+              <button type="button" class="btn btn-sm" onclick="copyTextRef('${escapeAttr(r.domain)}')">Sao chép</button>
+            </li>`).join(``)}
+          </ul>`;
+        } else {
+          catBody = `<p style="margin:0; font-size:0.88rem; line-height:1.6;">${escapeHtml(l.studyNote)}</p>`;
+        }
+
+        return `<div class="lesson-card-wrap">
+          <article class="neon-panel ${cyanVariant} lesson-card">
+            <div class="lesson-card-head">
+              <div>
+                <span class="mono-label" style="color:${cyanVariant ? `var(--secondary)` : `var(--primary)`};">${escapeHtml(l.code)} · NotebookLM</span>
+                <h3 style="margin-top:2px;">${escapeHtml(l.title)}</h3>
+              </div>
+              <button type="button" class="badge ${isReviewed ? `is-cyan` : `is-yellow`}" style="cursor:pointer;" onclick="toggleLessonReviewed(${l.id})">
+                ${isReviewed ? `✓ Đã ôn tập` : `Chưa ôn`}
+              </button>
+            </div>
+
+            <div class="core-summary-box">
+              <span class="mono-label" style="display:block; margin-bottom:2px; color:var(--secondary);">Tóm tắt tư duy cốt lõi</span>
+              ${escapeHtml(l.coreSummary)}
+            </div>
+
+            <div class="cat-tabs" role="tablist" aria-label="4 danh mục tài liệu ${escapeAttr(l.code)}">
+              <button type="button" class="cat-btn ${activeCat === `files` ? `is-active` : ``}" onclick="setCardCategory(${l.id}, 'files')">a) Tập tin</button>
+              <button type="button" class="cat-btn ${activeCat === `media` ? `is-active` : ``}" onclick="setCardCategory(${l.id}, 'media')">b) Media</button>
+              <button type="button" class="cat-btn ${activeCat === `refs` ? `is-active` : ``}" onclick="setCardCategory(${l.id}, 'refs')">c) Link</button>
+              <button type="button" class="cat-btn ${activeCat === `notes` ? `is-active` : ``}" onclick="setCardCategory(${l.id}, 'notes')">d) Ghi chú</button>
+            </div>
+
+            <div class="cat-content">${catBody}</div>
+
+            <div class="lesson-card-foot">
+              <span class="muted" style="font-size:0.8rem;">Đủ 4/4 chuẩn Y2</span>
+              <button type="button" class="btn btn-sm ${cyanVariant ? `btn-cyan` : `btn-neon`}" onclick="openLessonModal(${l.id})">
+                Xem đầy đủ 4 mục
+              </button>
+            </div>
+          </article>
+        </div>`;
+      }).join(``);
+
+      refreshIcons();
+    }
+
+    function resetLibraryFilters() {
+      appState.lessonGroup = `all`;
+      appState.lessonSearch = ``;
+      const inp = document.getElementById(`library-search`);
+      if (inp) inp.value = ``;
+      document.querySelectorAll(`[data-lgroup]`).forEach((b) => {
+        b.classList.toggle(`is-active`, b.dataset.lgroup === `all`);
+      });
+      renderLessons();
+    }
+
+    // =========================================================================
+    // PART 2.1: 3-COLUMN WIREFRAME PROTOTYPE
+    // =========================================================================
+    function setNoteDayFilter(day, btn) {
+      appState.wfDayFilter = day;
+      const container = document.getElementById(`wf-day-filters`);
+      if (container) {
+        container.querySelectorAll(`.filter-chip`).forEach((b) => b.classList.remove(`is-active`));
+      }
+      if (btn) btn.classList.add(`is-active`);
+      renderWireframeNotes();
+    }
+
+    function setNoteTagFilter(tag) {
+      appState.wfTagFilter = tag;
+      renderTagFilters();
+      renderWireframeNotes();
+    }
+
+    function renderTagFilters() {
+      const container = document.getElementById(`wf-tag-filters`);
+      if (!container) return;
+      const tagCounts = {};
+      appState.notes.forEach((n) => {
+        n.tags.forEach((t) => {
+          tagCounts[t] = (tagCounts[t] || 0) + 1;
+        });
+      });
+      const allTags = Object.keys(tagCounts).slice(0, 10);
+      let html = `<button type="button" class="filter-chip is-pink ${appState.wfTagFilter === `all` ? `is-active` : ``}" onclick="setNoteTagFilter('all')">Tất cả thẻ</button>`;
+      html += allTags.map((t) => `<button type="button" class="filter-chip is-pink ${appState.wfTagFilter === t ? `is-active` : ``}" onclick="setNoteTagFilter('${escapeAttr(t)}')">${escapeHtml(t)} (${tagCounts[t]})</button>`).join(``);
+      container.innerHTML = html;
+    }
+
+    function selectWireframeNote(noteId) {
+      appState.selectedNoteId = noteId;
+      renderWireframeNotes();
+      renderNotesTable();
+      updateCopilotHeader();
+      runCopilotAction(`summary`);
+    }
+
+    function renderWireframeNotes() {
+      const grid = document.getElementById(`wf-note-grid`);
+      const countBadge = document.getElementById(`wf-visible-count`);
+      const searchEl = document.getElementById(`wf-search`);
+      if (!grid) return;
+
+      const q = searchEl ? searchEl.value.trim().toLowerCase() : ``;
+      const filtered = appState.notes.filter((n) => {
+        if (appState.wfDayFilter !== `all` && n.day !== appState.wfDayFilter) return false;
+        if (appState.wfTagFilter !== `all` && !n.tags.includes(appState.wfTagFilter)) return false;
+        if (q) {
+          const blob = `${n.id} ${n.title} ${n.content} ${n.tags.join(` `)}`.toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (countBadge) countBadge.textContent = `${filtered.length} thẻ`;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">
+          <p class="muted">Không có thẻ ghi chú khớp bộ lọc Ngày/Thẻ.</p>
+          <button type="button" class="btn btn-sm btn-cyan" onclick="resetWireframeFilters()">Hiển thị lại tất cả</button>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map((n) => {
+        const isSel = n.id === appState.selectedNoteId;
+        return `<button type="button" class="wf-note-card ${isSel ? `is-selected` : ``}" onclick="selectWireframeNote('${escapeAttr(n.id)}')">
+          <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+            <span class="mono-label" style="color:var(--secondary);">${escapeHtml(n.id)} · ${escapeHtml(n.day)}</span>
+            <span class="badge ${n.status === `Cần bổ sung` ? `is-yellow` : `is-cyan`}">${escapeHtml(n.lesson)}</span>
+          </div>
+          <strong style="color:var(--on-surface); font-size:0.92rem;">${escapeHtml(n.title)}</strong>
+          <p class="muted" style="font-size:0.8rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(n.content)}</p>
+          <div class="chip-row" style="gap:4px;">
+            ${n.tags.map((t) => `<span class="badge" style="font-size:0.68rem;">${escapeHtml(t)}</span>`).join(``)}
+          </div>
+        </button>`;
+      }).join(``);
+    }
+
+    function resetWireframeFilters() {
+      appState.wfDayFilter = `all`;
+      appState.wfTagFilter = `all`;
+      const s = document.getElementById(`wf-search`);
+      if (s) s.value = ``;
+      const dayWrap = document.getElementById(`wf-day-filters`);
+      if (dayWrap) {
+        dayWrap.querySelectorAll(`.filter-chip`).forEach((b, i) => b.classList.toggle(`is-active`, i === 0));
+      }
+      renderTagFilters();
+      renderWireframeNotes();
+    }
+
+    function updateCopilotHeader() {
+      const box = document.getElementById(`copilot-selected-meta`);
+      if (!box) return;
+      const note = appState.notes.find((n) => n.id === appState.selectedNoteId);
+      if (!note) return;
+      box.innerHTML = `<div class="badge is-pink" style="margin-bottom:4px;">Đang chọn: ${escapeHtml(note.id)} (${escapeHtml(note.day)})</div>
+        <div style="font-weight:600; color:var(--on-surface);">${escapeHtml(note.title)}</div>`;
+    }
+
+    function runCopilotAction(action) {
+      const out = document.getElementById(`copilot-output`);
+      if (!out) return;
+      const note = appState.notes.find((n) => n.id === appState.selectedNoteId) || appState.notes[0];
+      if (!note) return;
+
+      if (action === `summary`) {
+        const sentences = note.content.split(`.`).map((s) => s.trim()).filter(Boolean);
+        out.innerHTML = `<span class="mono-label" style="color:var(--secondary);">AI Tóm tắt nhanh (${escapeHtml(note.id)})</span>
+          <ul style="margin:0; padding-left:1.1rem; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;">
+            <li><strong>Trọng tâm:</strong> ${escapeHtml(sentences[0] || note.title)}.</li>
+            <li><strong>Chi tiết:</strong> ${escapeHtml(sentences[1] || `Áp dụng cho học phần ${note.lesson}.`)}.</li>
+            <li><strong>Định hướng:</strong> ${escapeHtml(sentences[2] || `Lưu trữ vào kho ôn tập bảo vệ.`)}.</li>
+          </ul>`;
+      } else if (action === `tags`) {
+        const suggested = inferTagsFromText(`${note.title} ${note.content}`);
+        out.innerHTML = `<span class="mono-label" style="color:var(--primary);">AI Đề xuất phân loại thẻ</span>
+          <p class="muted" style="font-size:0.82rem;">Độ tin cậy phân tích ngữ nghĩa: <strong style="color:var(--secondary);">94%</strong></p>
+          <div class="chip-row">
+            ${suggested.map((t) => `<span class="badge is-pink">${escapeHtml(t.tag)} · ${t.conf}%</span>`).join(``)}
+          </div>`;
+      } else {
+        const todos = extractTodosFromText(note.content, note.day);
+        out.innerHTML = `<span class="mono-label" style="color:var(--tertiary);">AI Trích xuất việc cần làm</span>
+          <ul style="margin:0; padding-left:1.1rem; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;">
+            ${todos.map((td) => `<li><strong>[${escapeHtml(td.priority)}]</strong> ${escapeHtml(td.task)}</li>`).join(``)}
+          </ul>`;
+      }
+    }
+
+    function toggleAddNoteForm() {
+      const drawer = document.getElementById(`add-note-drawer`);
+      if (!drawer) return;
+      drawer.hidden = !drawer.hidden;
+    }
+
+    function saveNewNote() {
+      const titleEl = document.getElementById(`new-note-title`);
+      const dayEl = document.getElementById(`new-note-day`);
+      const tagsEl = document.getElementById(`new-note-tags`);
+      const contentEl = document.getElementById(`new-note-content`);
+      const fbEl = document.getElementById(`add-note-feedback`);
+
+      const title = titleEl ? titleEl.value.trim() : ``;
+      const day = dayEl ? dayEl.value : `Ngày 5`;
+      const rawTags = tagsEl ? tagsEl.value.trim() : ``;
+      const content = contentEl ? contentEl.value.trim() : ``;
+
+      if (title.length < 4 || content.length < 15) {
+        if (fbEl) fbEl.textContent = `Vui lòng nhập tiêu đề (>= 4 ký tự) và nội dung (>= 15 ký tự).`;
+        return;
+      }
+
+      const nextNum = appState.notes.length + 1;
+      const id = `N-${nextNum < 10 ? `0` + nextNum : nextNum}`;
+      const tags = rawTags
+        ? rawTags.split(`,`).map((t) => t.trim()).filter(Boolean).map((t) => (t.startsWith(`#`) ? t : `#` + t))
+        : [`#CNTT40`, `#GhiChuMoi`];
+      const dateMap = {
+        'Ngày 1': `18/11/2026`,
+        'Ngày 2': `19/11/2026`,
+        'Ngày 3': `20/11/2026`,
+        'Ngày 4': `21/11/2026`,
+        'Ngày 5': `22/11/2026`
+      };
+
+      const newNote = {
+        id,
+        day,
+        date: dateMap[day] || `22/11/2026`,
+        title,
+        lesson: `Mở rộng`,
+        tags,
+        status: `Mới thêm`,
+        content
+      };
+
+      appState.notes.push(newNote);
+      appState.selectedNoteId = id;
+      if (titleEl) titleEl.value = ``;
+      if (tagsEl) tagsEl.value = ``;
+      if (contentEl) contentEl.value = ``;
+      if (fbEl) fbEl.textContent = ``;
+
+      toggleAddNoteForm();
+      renderTagFilters();
+      renderWireframeNotes();
+      renderNotesTable();
+      populateAiStudioNoteSelect();
+      updateCopilotHeader();
+      runCopilotAction(`summary`);
+      updateAssignmentProgressUI();
+      updateActivityChart();
+      saveState();
+      showToast(`Đã lưu ghi chú ${id} vào kho dữ liệu.`);
+    }
+
+    // =========================================================================
+    // PART 2.2: INTERACTIVE WORKFLOW FLOWCHART
+    // =========================================================================
+    function selectWorkflowStep(idx) {
+      appState.activeWorkflowStep = idx;
+      renderWorkflowFlowchart();
+    }
+
+    function playWorkflowSimulation() {
+      if (workflowTimer) clearInterval(workflowTimer);
+      appState.activeWorkflowStep = 0;
+      renderWorkflowFlowchart();
+      workflowTimer = setInterval(() => {
+        appState.activeWorkflowStep += 1;
+        if (appState.activeWorkflowStep >= WORKFLOW_STEPS.length) {
+          clearInterval(workflowTimer);
+          workflowTimer = null;
+          showToast(`Hoàn tất mô phỏng 5 bước vận hành AI Note App.`);
+          return;
+        }
+        renderWorkflowFlowchart();
+      }, 950);
+    }
+
+    function renderWorkflowFlowchart() {
+      const strip = document.getElementById(`workflow-strip`);
+      const detail = document.getElementById(`wf-step-detail`);
+      if (!strip || !detail) return;
+
+      strip.innerHTML = WORKFLOW_STEPS.map((st, idx) => {
+        const isAct = idx === appState.activeWorkflowStep;
+        return `<button type="button" class="wf-step-card ${isAct ? `is-active` : ``}" onclick="selectWorkflowStep(${idx})">
+          <span class="mono-label" style="color:${isAct ? `var(--secondary)` : `var(--primary)`};">${escapeHtml(st.step)}</span>
+          <strong style="font-size:0.92rem; color:var(--on-surface);">${escapeHtml(st.title)}</strong>
+          <span class="muted" style="font-size:0.8rem;">${escapeHtml(st.summary)}</span>
+        </button>`;
+      }).join(``);
+
+      const cur = WORKFLOW_STEPS[appState.activeWorkflowStep] || WORKFLOW_STEPS[0];
+      detail.innerHTML = `<div>
+          <span class="mono-label" style="color:var(--primary);">Đầu vào (Input)</span>
+          <p style="margin:4px 0 0 0; font-size:0.9rem;">${escapeHtml(cur.input)}</p>
+        </div>
+        <div>
+          <span class="mono-label" style="color:var(--secondary);">Xử lý (Process)</span>
+          <p style="margin:4px 0 0 0; font-size:0.9rem;">${escapeHtml(cur.process)}</p>
+        </div>
+        <div>
+          <span class="mono-label" style="color:var(--tertiary);">Kết quả (Output)</span>
+          <p style="margin:4px 0 0 0; font-size:0.9rem;">${escapeHtml(cur.output)}</p>
+        </div>`;
+    }
+
+    // =========================================================================
+    // PART 2.3: 10-NOTE LEDGER TABLE
+    // =========================================================================
+    function renderNotesTable() {
+      const tbody = document.getElementById(`notes-table-body`);
+      const daySel = document.getElementById(`table-day-filter`);
+      if (!tbody) return;
+
+      const dayVal = daySel ? daySel.value : `all`;
+      const list = appState.notes.filter((n) => dayVal === `all` || n.day === dayVal);
+
+      tbody.innerHTML = list.map((n) => {
+        const isSel = n.id === appState.selectedNoteId;
+        const badgeCls = n.status === `Cần bổ sung` ? `is-yellow` : (n.status === `Sẵn sàng bảo vệ` ? `is-pink` : `is-cyan`);
+        return `<tr class="${isSel ? `is-active-row` : ``}" onclick="selectWireframeNote('${escapeAttr(n.id)}')">
+          <td><span class="mono-label" style="color:var(--secondary);">${escapeHtml(n.id)}</span></td>
+          <td style="white-space:nowrap;">
+            <strong>${escapeHtml(n.day)}</strong><br>
+            <span class="muted" style="font-size:0.78rem;">${escapeHtml(n.date)}</span>
+          </td>
+          <td>
+            <strong style="color:var(--on-surface);">${escapeHtml(n.title)}</strong>
+            <p class="muted" style="font-size:0.83rem; margin-top:4px;">${escapeHtml(n.content)}</p>
+          </td>
+          <td style="white-space:nowrap;"><span class="badge">${escapeHtml(n.lesson)}</span></td>
+          <td>
+            <div class="chip-row" style="gap:4px;">
+              ${n.tags.map((t) => `<span class="badge" style="font-size:0.7rem;">${escapeHtml(t)}</span>`).join(``)}
+            </div>
+          </td>
+          <td style="white-space:nowrap;"><span class="badge ${badgeCls}">${escapeHtml(n.status)}</span></td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="btn btn-sm btn-cyan" onclick="event.stopPropagation(); sendNoteToAiStudio('${escapeAttr(n.id)}')">
+              Nạp AI Studio
+            </button>
+          </td>
+        </tr>`;
+      }).join(``);
+    }
+
+    function sendNoteToAiStudio(noteId) {
+      const sel = document.getElementById(`ai-note-select`);
+      if (sel) sel.value = noteId;
+      loadNoteIntoAiStudio();
+      setAiDemoMode(`summarize`);
+      executeAiStudioDemo();
+      const target = document.getElementById(`ai-result-box`);
+      if (target) target.scrollIntoView({ behavior: `smooth`, block: `nearest` });
+      showToast(`Đã nạp ghi chú ${noteId} vào Google AI Studio.`);
+    }
+
+    // =========================================================================
+    // PART 2.4: GOOGLE AI STUDIO 4 INTERACTIVE FEATURES
+    // =========================================================================
+    function populateAiStudioNoteSelect() {
+      const sel = document.getElementById(`ai-note-select`);
+      if (!sel) return;
+      sel.innerHTML = appState.notes.map((n) => `<option value="${escapeAttr(n.id)}">${escapeHtml(n.id)} (${escapeHtml(n.day)}) — ${escapeHtml(n.title)}</option>`).join(``);
+    }
+
+    function loadNoteIntoAiStudio() {
+      const sel = document.getElementById(`ai-note-select`);
+      const ta = document.getElementById(`ai-input-text`);
+      if (!sel || !ta) return;
+      const note = appState.notes.find((n) => n.id === sel.value) || appState.notes[0];
+      if (note && appState.aiDemoMode !== `rag`) {
+        ta.value = `${note.title}\n${note.content}`;
+      }
+    }
+
+    function setAiDemoMode(mode) {
+      appState.aiDemoMode = mode;
+      [`summarize`, `autotag`, `rag`, `actions`].forEach((m) => {
+        const b = document.getElementById(`aimode-${m}`);
+        if (b) b.classList.toggle(`is-active`, m === mode);
+      });
+
+      const srcGroup = document.getElementById(`ai-source-note-group`);
+      const ragGroup = document.getElementById(`ai-rag-presets-group`);
+      const styleGroup = document.getElementById(`ai-summary-style-group`);
+      const lbl = document.getElementById(`ai-input-label`);
+      const ta = document.getElementById(`ai-input-text`);
+
+      if (mode === `rag`) {
+        if (srcGroup) srcGroup.hidden = true;
+        if (ragGroup) ragGroup.hidden = false;
+        if (styleGroup) styleGroup.hidden = true;
+        if (lbl) lbl.textContent = `Đặt câu hỏi ngữ cảnh trên toàn bộ kho ${appState.notes.length} ghi chú`;
+        if (ta && !ta.value.includes(`?`)) {
+          ta.value = `Sự khác nhau giữa CPU, GPU và TPU là gì?`;
+        }
+      } else {
+        if (srcGroup) srcGroup.hidden = false;
+        if (ragGroup) ragGroup.hidden = true;
+        if (styleGroup) styleGroup.hidden = mode !== `summarize`;
+        if (lbl) lbl.textContent = `Nội dung đầu vào gửi tới Google AI Studio`;
+        loadNoteIntoAiStudio();
+      }
+
+      executeAiStudioDemo();
+    }
+
+    function askRagPreset(question) {
+      const ta = document.getElementById(`ai-input-text`);
+      if (ta) ta.value = question;
+      executeAiStudioDemo();
+    }
+
+    function inferTagsFromText(text) {
+      const low = text.toLowerCase();
+      const rules = [
+        { kw: [`cpu`, `gpu`, `tpu`, `ram`, `ssd`, `phần cứng`], tag: `#Hardware_TPU`, conf: 96, lesson: `Bài 2: Phần cứng & TPU` },
+        { kw: [`docker`, `container`, `hypervisor`, `máy ảo`, `hệ điều hành`, `kernel`], tag: `#OS_Docker`, conf: 95, lesson: `Bài 3: Hệ điều hành` },
+        { kw: [`cloud`, `iaas`, `paas`, `saas`, `bản quyền`, `open source`], tag: `#Cloud_Platform`, conf: 94, lesson: `Bài 4: Cloud & Phần mềm` },
+        { kw: [`5g`, `iot`, `cảm biến`, `độ trễ`, `mạng`], tag: `#5G_IoT`, conf: 95, lesson: `Bài 5: Mạng & IoT` },
+        { kw: [`thuật toán`, `phân rã`, `vibe-code`, `no-code`, `automation`], tag: `#Algorithm_VibeCode`, conf: 93, lesson: `Bài 6: Tư duy thuật toán` },
+        { kw: [`prompt`, `ai studio`, `gemini`, `hallucination`, `rag`, `big data`], tag: `#AI_Prompt`, conf: 97, lesson: `Bài 7: AI & Big Data` },
+        { kw: [`iso 27000`, `isms`, `bảo mật`, `đạo đức số`, `an ninh mạng`], tag: `#Security_ISO27000`, conf: 96, lesson: `Bài 8: ATTT & Đạo đức số` },
+        { kw: [`cdio`, `cmcn 4.0`, `kỹ năng`, `assignment`, `bảo vệ`], tag: `#CNTT40_CDIO`, conf: 92, lesson: `Bài 1 & Tổng hợp` }
+      ];
+      const matched = [];
+      rules.forEach((r) => {
+        if (r.kw.some((k) => low.includes(k))) {
+          matched.push({ tag: r.tag, conf: r.conf, lesson: r.lesson });
+        }
+      });
+      if (matched.length === 0) {
+        matched.push({ tag: `#CNTT40_StudyNote`, conf: 88, lesson: `Tổng hợp CNTT 4.0` });
+      }
+      return matched;
+    }
+
+    function extractTodosFromText(text, dayLabel) {
+      const items = [];
+      const low = text.toLowerCase();
+      if (low.includes(`việc cần làm`) || low.includes(`việc làm ngay`) || low.includes(`cần `) || low.includes(`kiểm tra`)) {
+        const parts = text.split(`.`).map((p) => p.trim()).filter(Boolean);
+        parts.forEach((p) => {
+          const pl = p.toLowerCase();
+          if (pl.includes(`việc`) || pl.includes(`cần`) || pl.includes(`kiểm tra`) || pl.includes(`nên`) || pl.includes(`hoàn tất`) || pl.includes(`xuất`)) {
+            items.push({
+              id: `td-${Math.abs(hashStr(p))}`,
+              task: p.replace(/^việc cần làm:\s*/i, ``).replace(/^việc làm ngay:\s*/i, ``),
+              priority: pl.includes(`bảo vệ`) || pl.includes(`khắc phục`) || pl.includes(`bảo mật`) ? `Cao` : `Trung bình`,
+              deadline: dayLabel || `Trước bảo vệ`
+            });
+          }
+        });
+      }
+      if (items.length === 0) {
+        items.push({
+          id: `td-${Math.abs(hashStr(text))}`,
+          task: `Hệ thống hóa nội dung ghi chú và liên kết với slide bài giảng tương ứng`,
+          priority: `Trung bình`,
+          deadline: dayLabel || `Ngày 5`
+        });
+      }
+      return items.slice(0, 4);
+    }
+
+    function hashStr(str) {
+      let h = 0;
+      for (let i = 0; i < str.length; i += 1) {
+        h = (h * 31 + str.charCodeAt(i)) | 0;
+      }
+      return h;
+    }
+
+    function toggleTodoChecked(todoId) {
+      appState.checkedActionItems[todoId] = !appState.checkedActionItems[todoId];
+      saveState();
+    }
+
+    function executeAiStudioDemo() {
+      const ta = document.getElementById(`ai-input-text`);
+      const box = document.getElementById(`ai-result-box`);
+      const badge = document.getElementById(`ai-latency-badge`);
+      if (!ta || !box) return;
+
+      const text = ta.value.trim();
+      if (!text) {
+        box.innerHTML = `<p style="color:var(--error);">Lỗi đầu vào: Vui lòng nhập nội dung ghi chú hoặc câu hỏi trước khi chạy AI Studio.</p>`;
+        return;
+      }
+
+      const mode = appState.aiDemoMode;
+      if (badge) badge.textContent = `Xử lý xong · Grounded`;
+
+      if (mode === `summarize`) {
+        const styleEl = document.getElementById(`ai-summary-style`);
+        const style = styleEl ? styleEl.value : `bullet`;
+        const sentences = text.split(/[.?\n]/).map((s) => s.trim()).filter((s) => s.length > 6);
+        if (style === `oneliner`) {
+          box.innerHTML = `<span class="mono-label" style="color:var(--secondary);">Tóm tắt 1 câu (Executive One-Liner)</span>
+            <p style="font-size:1rem; color:var(--on-surface); margin:0;">${escapeHtml(sentences[0] || text)}.</p>
+            <div class="badge is-cyan" style="align-self:flex-start;">Tỷ lệ nén: ~68% số từ</div>`;
+        } else if (style === `defense`) {
+          box.innerHTML = `<span class="mono-label" style="color:var(--primary);">Dàn ý trả lời vấn đáp trước giảng viên</span>
+            <ul style="margin:0; padding-left:1.2rem; display:flex; flex-direction:column; gap:8px;">
+              <li><strong>Khái niệm / Bối cảnh:</strong> ${escapeHtml(sentences[0] || text)}.</li>
+              <li><strong>Điểm nhấn kỹ thuật:</strong> ${escapeHtml(sentences[1] || `Phân tích kiến trúc và công cụ áp dụng trong CNTT 4.0`)}.</li>
+              <li><strong>Giá trị thực tiễn:</strong> ${escapeHtml(sentences[2] || `Áp dụng trực tiếp vào quy trình học tập và bài tập Assignment`)}.</li>
+            </ul>`;
+        } else {
+          box.innerHTML = `<span class="mono-label" style="color:var(--secondary);">Tóm tắt 3 ý chính (Auto-Summary)</span>
+            <ul style="margin:0; padding-left:1.2rem; display:flex; flex-direction:column; gap:8px;">
+              ${sentences.slice(0, 3).map((s, idx) => `<li><strong>Ý ${idx + 1}:</strong> ${escapeHtml(s)}.</li>`).join(``)}
+            </ul>`;
+        }
+      } else if (mode === `autotag`) {
+        const inferred = inferTagsFromText(text);
+        box.innerHTML = `<span class="mono-label" style="color:var(--primary);">Kết quả phân loại &amp; Gán thẻ tự động</span>
+          <p class="muted" style="font-size:0.85rem;">Google AI Studio ánh xạ nội dung về các chủ đề trong giáo trình CNTT 4.0:</p>
+          <div class="chip-row">
+            ${inferred.map((item) => `<span class="badge is-pink">${escapeHtml(item.tag)} · ${item.conf}%</span>`).join(``)}
+          </div>
+          <div style="margin-top:var(--space-sm); padding:var(--space-sm); background:var(--surface-container); border-radius:var(--rounded); border:var(--hairline-border);">
+            <span class="mono-label">Bài học liên kết:</span>
+            <strong style="display:block; margin-top:4px; color:var(--secondary);">${escapeHtml(inferred.map((i) => i.lesson).join(` · `))}</strong>
+          </div>`;
+      } else if (mode === `rag`) {
+        const qTokens = text.toLowerCase().split(/[\s,?.!]+/).filter((w) => w.length >= 2);
+        const scored = appState.notes.map((n) => {
+          const hay = `${n.title} ${n.content} ${n.tags.join(` `)} ${n.day} ${n.lesson}`.toLowerCase();
+          let score = 0;
+          qTokens.forEach((tok) => {
+            if (hay.includes(tok)) score += 1;
+          });
+          return { note: n, score };
+        }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score);
+
+        if (scored.length === 0) {
+          box.innerHTML = `<span class="mono-label" style="color:var(--tertiary);">Kết quả truy vấn RAG</span>
+            <p style="margin:0;">Không tìm thấy đoạn ghi chú phù hợp với câu hỏi trong kho ${appState.notes.length} ghi chú. Hãy thử từ khóa như: <em>TPU, Docker, 5G, Hallucination, ISO 27000, Ngày 1–5</em>.</p>`;
+        } else {
+          const top = scored.slice(0, 3);
+          box.innerHTML = `<span class="mono-label" style="color:var(--secondary);">Câu trả lời tổng hợp từ kho ghi chú (RAG Grounded)</span>
+            <div style="display:flex; flex-direction:column; gap:var(--space-sm);">
+              ${top.map((item) => `<div style="padding:var(--space-sm); background:var(--surface-container); border-left:2px solid var(--secondary); border-radius:var(--rounded);">
+                <div style="display:flex; justify-content:space-between; gap:8px; margin-bottom:4px;">
+                  <strong style="color:var(--secondary); font-size:0.86rem;">[${escapeHtml(item.note.id)} · ${escapeHtml(item.note.day)}] ${escapeHtml(item.note.title)}</strong>
+                  <span class="badge">${escapeHtml(item.note.lesson)}</span>
+                </div>
+                <p style="margin:0; font-size:0.85rem;">${escapeHtml(item.note.content)}</p>
+              </div>`).join(``)}
+            </div>`;
+        }
+      } else {
+        const sel = document.getElementById(`ai-note-select`);
+        const note = sel ? appState.notes.find((n) => n.id === sel.value) : null;
+        const todos = extractTodosFromText(text, note ? note.day : `Ngày 5`);
+        box.innerHTML = `<span class="mono-label" style="color:var(--tertiary);">Danh sách Action Items / To-do trích xuất (Tick để hoàn thành)</span>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${todos.map((td) => {
+              const checked = !!appState.checkedActionItems[td.id];
+              return `<label class="todo-item">
+                <input type="checkbox" ${checked ? `checked` : ``} onchange="toggleTodoChecked('${escapeAttr(td.id)}')">
+                <div style="flex:1;">
+                  <div style="font-size:0.88rem; ${checked ? `text-decoration:line-through; color:var(--on-surface-variant);` : ``}">${escapeHtml(td.task)}</div>
+                  <div class="chip-row" style="margin-top:4px;">
+                    <span class="badge ${td.priority === `Cao` ? `is-pink` : `is-cyan`}">Ưu tiên: ${escapeHtml(td.priority)}</span>
+                    <span class="badge">Mốc: ${escapeHtml(td.deadline)}</span>
+                  </div>
+                </div>
+              </label>`;
+            }).join(``)}
+          </div>`;
+      }
+    }
+
+    // =========================================================================
+    // PART 3: CHECKLIST & CHARTS
+    // =========================================================================
+    function renderChecklist() {
+      const grid = document.getElementById(`checklist-grid`);
+      if (!grid) return;
+      grid.innerHTML = appState.checklist.map((c, idx) => `<label class="check-card ${c.done ? `is-done` : ``}">
+        <input type="checkbox" ${c.done ? `checked` : ``} onchange="toggleChecklistItem(${idx})">
+        <div>
+          <span class="mono-label" style="color:${c.done ? `var(--secondary)` : `var(--tertiary)`};">${escapeHtml(c.code)}</span>
+          <div style="font-size:0.9rem; margin-top:2px;">${escapeHtml(c.title)}</div>
+        </div>
+      </label>`).join(``);
+    }
+
+    function toggleChecklistItem(idx) {
+      if (!appState.checklist[idx]) return;
+      appState.checklist[idx].done = !appState.checklist[idx].done;
+      renderChecklist();
+      updateAssignmentProgressUI();
+      saveState();
+    }
+
+    function resetChecklistProgress(btn) {
+      if (btn && btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.textContent = `Nhấn lại để xác nhận đặt lại`;
+        return;
+      }
+      if (btn) {
+        btn.dataset.armed = `false`;
+        btn.textContent = `Đặt lại mặc định`;
+      }
+      appState.checklist = DEFAULT_CHECKLIST.map((c) => ({ ...c }));
+      appState.reviewedLessons = [1, 2, 3, 4, 5, 6, 7, 8];
+      renderLessons();
+      renderChecklist();
+      updateAssignmentProgressUI();
+      saveState();
+      showToast(`Đã khôi phục trạng thái hoàn thành chuẩn 100%.`);
+    }
+
+    function initCharts() {
+      if (typeof Chart === `undefined`) return;
+      const styles = getComputedStyle(document.documentElement);
+      const cPink = styles.getPropertyValue(`--data-1`).trim();
+      const cCyan = styles.getPropertyValue(`--data-2`).trim();
+      const cYellow = styles.getPropertyValue(`--data-3`).trim();
+      const cText = styles.getPropertyValue(`--on-surface-variant`).trim();
+      const cGrid = styles.getPropertyValue(`--outline-variant`).trim();
+      const cSurface = styles.getPropertyValue(`--surface-container-high`).trim();
+
+      const gCtx = document.getElementById(`gradingChart`);
+      if (gCtx) {
+        if (gradingChartInstance) gradingChartInstance.destroy();
+        gradingChartInstance = new Chart(gCtx, {
+          type: `doughnut`,
+          data: {
+            labels: [`Giai đoạn 1: Thư viện số (10%)`, `Giai đoạn 2: Ứng dụng AI Note (10%)`, `Bảo vệ thực hành & Vấn đáp (40%)`],
+            datasets: [{
+              data: [10, 10, 40],
+              backgroundColor: [cCyan, cYellow, cPink],
+              borderColor: cSurface,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: `bottom`,
+                labels: { color: cText, font: { family: `JetBrains Mono`, size: 11 } }
+              }
+            }
+          }
+        });
+      }
+
+      updateActivityChart();
+    }
+
+    function updateActivityChart() {
+      if (typeof Chart === `undefined`) return;
+      const aCtx = document.getElementById(`activityChart`);
+      if (!aCtx) return;
+
+      const styles = getComputedStyle(document.documentElement);
+      const cPink = styles.getPropertyValue(`--data-1`).trim();
+      const cCyan = styles.getPropertyValue(`--data-2`).trim();
+      const cText = styles.getPropertyValue(`--on-surface-variant`).trim();
+      const cGrid = styles.getPropertyValue(`--outline-variant`).trim();
+
+      const days = [`Ngày 1`, `Ngày 2`, `Ngày 3`, `Ngày 4`, `Ngày 5`];
+      const counts = days.map((d) => appState.notes.filter((n) => n.day === d).length);
+      const aiRuns = [2, 3, 3, 4, 4];
+
+      if (activityChartInstance) activityChartInstance.destroy();
+      activityChartInstance = new Chart(aCtx, {
+        type: `bar`,
+        data: {
+          labels: days,
+          datasets: [
+            {
+              label: `Số ghi chú thực tế`,
+              data: counts,
+              backgroundColor: cPink,
+              borderRadius: 3
+            },
+            {
+              label: `Phiên xử lý AI Studio`,
+              data: aiRuns,
+              backgroundColor: cCyan,
+              borderRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              ticks: { color: cText, font: { family: `JetBrains Mono`, size: 11 } },
+              grid: { color: cGrid }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, color: cText, font: { family: `JetBrains Mono`, size: 11 } },
+              grid: { color: cGrid }
+            }
+          },
+          plugins: {
+            legend: {
+              position: `bottom`,
+              labels: { color: cText, font: { family: `JetBrains Mono`, size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // MODALS & FILE EXPORT
+    // =========================================================================
+    function openLessonModal(lessonId) {
+      const l = LESSONS.find((item) => item.id === lessonId);
+      const modal = document.getElementById(`detail-modal`);
+      const kicker = document.getElementById(`modal-kicker`);
+      const title = document.getElementById(`modal-title`);
+      const body = document.getElementById(`modal-body`);
+      if (!l || !modal || !body) return;
+
+      if (kicker) kicker.textContent = `Phần 1 · Thư viện số Google NotebookLM · ${l.code}`;
+      if (title) title.textContent = l.title;
+
+      body.innerHTML = `<div class="core-summary-box">
+          <span class="mono-label" style="color:var(--secondary); display:block; margin-bottom:4px;">Tóm tắt tư duy cốt lõi</span>
+          ${escapeHtml(l.coreSummary)}
+        </div>
+        <div>
+          <span class="mono-label">a) Dạng tập tin (Files)</span>
+          <ul class="resource-list" style="margin-top:6px;">
+            ${l.files.map((f) => `<li class="resource-item"><span>${escapeHtml(f.name)}</span><span class="badge is-cyan">${escapeHtml(f.type)} · ${escapeHtml(f.size)}</span></li>`).join(``)}
+          </ul>
+        </div>
+        <div>
+          <span class="mono-label">b) Hình ảnh / Video minh họa (Media)</span>
+          <div class="svg-preview-box" style="margin-top:6px;">${getLessonSvg(l.id, false)}</div>
+          <p class="muted" style="font-size:0.88rem; margin-top:6px;"><strong>${escapeHtml(l.mediaTitle)}:</strong> ${escapeHtml(l.mediaNote)}</p>
+        </div>
+        <div>
+          <span class="mono-label">c) Link tham chiếu website ngoài</span>
+          <ul class="resource-list" style="margin-top:6px;">
+            ${l.refs.map((r) => `<li class="resource-item"><div><strong style="color:var(--secondary);">${escapeHtml(r.domain)}</strong> — <span class="muted">${escapeHtml(r.desc)}</span></div><button type="button" class="btn btn-sm" onclick="copyTextRef('${escapeAttr(r.domain)}')">Sao chép</button></li>`).join(``)}
+          </ul>
+        </div>
+        <div>
+          <span class="mono-label">d) Ghi chú cá nhân tự đúc kết</span>
+          <p style="margin:6px 0 0 0; padding:var(--space-md); background:var(--surface-container-low); border:var(--hairline-border); border-radius:var(--rounded);">${escapeHtml(l.studyNote)}</p>
+        </div>`;
+
+      modal.hidden = false;
+    }
+
+    function openDefensePrepModal() {
+      const modal = document.getElementById(`detail-modal`);
+      const kicker = document.getElementById(`modal-kicker`);
+      const title = document.getElementById(`modal-title`);
+      const body = document.getElementById(`modal-body`);
+      if (!modal || !body) return;
+
+      if (kicker) kicker.textContent = `Chuẩn bị bảo vệ Assignment · 40% tổng điểm`;
+      if (title) title.textContent = `Kịch Bản Thực Hành & Vấn Đáp Trước Hội Đồng`;
+
+      body.innerHTML = `<div class="core-summary-box">
+          <strong>4 Tiêu chí chấm phần thực hành:</strong> Nội dung đầy đủ (Y1–Y6) · Thời gian đúng quy định · Trình bày rõ ràng mạch lạc · Sản phẩm đẹp, sinh động, sáng tạo.
+        </div>
+        <div>
+          <span class="mono-label" style="color:var(--primary);">Quy trình demo trực tiếp 5 phút</span>
+          <ol style="margin:8px 0 0 0; padding-left:1.3rem; display:flex; flex-direction:column; gap:6px;">
+            <li>Mở Phần 1 giới thiệu 8 bài học CNTT 4.0 trong Google NotebookLM kèm đủ 4 nhóm tài liệu và môn mở rộng (Y3).</li>
+            <li>Chuyển sang Phần 2 trình bày phác thảo Wireframe 3 cột và mô phỏng luồng vận hành 5 bước (Y4).</li>
+            <li>Lọc bảng 10 ghi chú thực tế xuyên suốt 5 ngày từ 18/11 đến 22/11 (Y5).</li>
+            <li>Chạy trực tiếp 4 tính năng Google AI Studio: Tóm tắt, Auto-Tag, Hỏi đáp RAG và Trích xuất To-do (Y6).</li>
+          </ol>
+        </div>
+        <div>
+          <span class="mono-label" style="color:var(--secondary);">Câu hỏi vấn đáp trọng tâm thường gặp</span>
+          <ul class="resource-list" style="margin-top:8px;">
+            <li class="resource-item"><span>1. Vì sao cần kết hợp NotebookLM (Phần 1) và AI Studio (Phần 2)?</span><span class="badge is-cyan">Lưu trữ vs Xây app</span></li>
+            <li class="resource-item"><span>2. Làm thế nào để hạn chế AI bịa thông tin (Hallucination)?</span><span class="badge is-pink">System Prompt + RAG</span></li>
+            <li class="resource-item"><span>3. Dữ liệu ghi chú có tuân thủ ISO 27000 và Đạo đức số không?</span><span class="badge is-yellow">Không lộ PII · Có trích nguồn</span></li>
+          </ul>
+        </div>
+        <div>
+          <span class="mono-label">Quy cách đóng gói nộp bài</span>
+          <p class="muted" style="margin:6px 0 0 0;">Nén toàn bộ báo cáo Word/PDF, slide tóm tắt và thư mục ứng dụng thành tệp: <strong style="color:var(--secondary);">PK05104-HuynhNhamTy_CNTT4.0_Assignment.zip</strong></p>
+        </div>`;
+
+      modal.hidden = false;
+    }
+
+    function closeModal() {
+      const modal = document.getElementById(`detail-modal`);
+      if (modal) modal.hidden = true;
+    }
+
+    function exportSubmissionReport() {
+      const lines = [
+        `BAO CAO ASSIGNMENT MON CNTT 4.0 - FPT POLYTECHNIC`,
+        `Dieu phoi vien: Huynh Nham Ty | Ti trong: 60% (GD1 10% + GD2 10% + Bao ve 40%)`,
+        `File dong goi mau: PK05104-HuynhNhamTy_CNTT4.0_Assignment.zip`,
+        `================================================================`,
+        `PHAN 1: THU VIEN SO CA NHAN (8 BAI HOC)`,
+        ...LESSONS.map((l) => `- ${l.code}: ${l.title} | Tom tat: ${l.coreSummary}`),
+        ``,
+        `PHAN 2: NHAT KY ${appState.notes.length} GHI CHU CA NHAN (NGAY 1 - NGAY 5)`,
+        ...appState.notes.map((n) => `- [${n.id} | ${n.day} - ${n.date}] ${n.title} (${n.tags.join(` `)})`)
+      ];
+      const content = lines.join(`\n`);
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content,
+          contentType: `text/plain`,
+          encoding: `UTF-8`,
+          filename: `Bao_Cao_CNTT4.0_Assignment.txt`
+        });
+        showToast(`Đã xuất báo cáo tóm tắt Bao_Cao_CNTT4.0_Assignment.txt`);
+      } else {
+        const blob = new Blob([content], { type: `text/plain;charset=utf-8` });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement(`a`);
+        link.href = url;
+        link.download = `Bao_Cao_CNTT4.0_Assignment.txt`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        showToast(`Đã tải báo cáo tóm tắt về máy.`);
+      }
+    }
+
+    // =========================================================================
+    // UTILITIES & STATE PERSISTENCE
+    // =========================================================================
+    function showToast(msg) {
+      const toast = document.getElementById(`toast-banner`);
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.hidden = false;
+      setTimeout(() => {
+        toast.hidden = true;
+      }, 2800);
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`)
+        .replace(/'/g, `&#39;`);
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    function refreshIcons() {
+      if (typeof lucide !== `undefined` && typeof lucide.createIcons === `function`) {
+        lucide.createIcons();
+      }
+    }
+
+    async function saveState() {
+      // GitHub Pages/static hosting: save changes in this visitor's browser.
+      try {
+        localStorage.setItem(`cntt40-assignment-state`, JSON.stringify(appState));
+      } catch (err) {
+        // Continue even when browser storage is unavailable.
+      }
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+        try {
+          await window.notebookAppApi.setAppState(appState);
+        } catch (err) {
+          // Ignore host persistence errors in standalone mode.
+        }
+      }
+    }
+
+    async function initApp() {
+      let saved = null;
+      try {
+        const localSaved = localStorage.getItem(`cntt40-assignment-state`);
+        if (localSaved) saved = JSON.parse(localSaved);
+      } catch (err) {
+        saved = null;
+      }
+      if (!saved && window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+        try {
+          saved = await window.notebookAppApi.getAppState();
+        } catch (err) {
+          saved = null;
+        }
+      }
+      if (saved && typeof saved === `object`) {
+        if (saved.currentView) appState.currentView = saved.currentView;
+        if (saved.lessonCatMap) appState.lessonCatMap = saved.lessonCatMap;
+        if (Array.isArray(saved.reviewedLessons)) appState.reviewedLessons = saved.reviewedLessons;
+        if (Array.isArray(saved.notes) && saved.notes.length >= 10) appState.notes = saved.notes;
+        if (saved.selectedNoteId) appState.selectedNoteId = saved.selectedNoteId;
+        if (saved.checkedActionItems) appState.checkedActionItems = saved.checkedActionItems;
+        if (Array.isArray(saved.checklist)) appState.checklist = saved.checklist;
+      }
+
+      renderLessons();
+      renderTagFilters();
+      renderWireframeNotes();
+      updateCopilotHeader();
+      runCopilotAction(`summary`);
+      renderWorkflowFlowchart();
+      renderNotesTable();
+      populateAiStudioNoteSelect();
+      loadNoteIntoAiStudio();
+      executeAiStudioDemo();
+      renderChecklist();
+      updateAssignmentProgressUI();
+      initCharts();
+      switchView(appState.currentView);
+      refreshIcons();
+
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`keydown`, (e) => {
+      if (e.key === `Escape`) closeModal();
+    });
+
+    window.addEventListener(`DOMContentLoaded`, () => {
+      initApp();
+    });
+  </script>
+</body>
+</html>
